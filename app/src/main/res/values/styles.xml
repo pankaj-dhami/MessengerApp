@@ -1,0 +1,69 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+
+      <!--  <item name="colorControlNormal">#ffffff</item>
+        <item name="colorControlActivated">@color/accent</item>
+        <item name="colorControlHighlight">@color/accent</item>
+        <item name="android:textViewStyle">@style/RobotoTextViewStyle</item>
+        <item name="android:autoCompleteTextViewStyle">@style/RobotoAutoCompleteTextViewStyle</item>
+        <item name="android:editTextStyle">@style/RobotoEditTextStyle</item>-->
+    </style>
+
+    <style name="Theme.Dark" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/formBgColor</item>
+        <item name="colorPrimaryDark">@color/formBgColor</item>
+
+      <!--  <item name="android:background">@drawable/app_storm_apple_mac_blue_symbol_8281_1080x1920</item>-->
+      <!--  <item name="android:actionBarTabStyle">@style/Theme.Dark.Tab</item>
+        <item name="actionBarTabStyle">@style/Theme.Dark.Tab</item>-->
+
+    </style>
+    <style name="Theme.Dark.Tab">
+        <item name="android:background">@drawable/tab_bar_background</item>
+    </style>
+
+    <style name="Theme.TranslucentActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:actionBarStyle">@style/Widget.ActionBar</item>
+    </style>
+
+    <style name="Theme.TranslucentActionBar.ActionBar" />
+
+    <style name="Theme.TranslucentActionBar.ActionBar.Overlay">
+        <item name="android:actionBarStyle">@style/Widget.ActionBar.Transparent</item>
+        <item name="android:windowActionBarOverlay">true</item>
+    </style>
+
+    <style name="Widget.ActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:background">@drawable/ic_action_call</item>
+    </style>
+
+    <style name="Widget.ActionBar.Transparent">
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
+
+    <style name="MyActionBarTabs"
+        parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- tab indicator -->
+
+        <item name="android:background">@drawable/tab_bar_background</item>
+
+
+    </style>
+
+    <style name="Theme.FullScreen" parent="@android:style/Theme.Holo.Light.NoActionBar.Fullscreen"></style>s
+    <style name="RobotoTextViewStyle" parent="android:Widget.TextView">
+        <item name="android:fontFamily">sans-serif-light</item>
+    </style>
+    <style name="RobotoAutoCompleteTextViewStyle" parent="android:Widget.AutoCompleteTextView">
+        <item name="android:fontFamily">sans-serif-light</item>
+    </style>
+    <style name="RobotoEditTextStyle" parent="android:Widget.EditText">
+        <item name="android:fontFamily">sans-serif-light</item>
+    </style>
+    <color name="accent">#ffffff</color>
+
+</resources>

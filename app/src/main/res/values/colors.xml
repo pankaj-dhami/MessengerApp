@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<color name="formBgColor">#ff328332</color>
+    <color name="ColorPrimary">#00897B</color>
+    <color name="ColorPrimaryDark">#00695C</color>
+    <color name="tabsScrollColor">#004D40</color>
+    <color name="transparent" >#00000000</color>
+    <color name="tab_highlight">#ff9ecfbf</color>
+
+
+</resources>
