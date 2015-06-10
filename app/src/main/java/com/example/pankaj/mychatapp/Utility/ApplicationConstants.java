@@ -1,5 +1,6 @@
 package com.example.pankaj.mychatapp.Utility;
 
+import com.example.pankaj.mychatapp.Model.MsgModel;
 import com.example.pankaj.mychatapp.Model.UserModel;
 
 import java.util.ArrayList;
@@ -24,6 +25,9 @@ public class ApplicationConstants  {
     public static ArrayList<UserModel> friendsList=new ArrayList<UserModel>();
 
     public static  UserModel thisUser;
+    public static  UserModel chatUser;
+    public static  MsgModel msgModel;
+
 
     public static String getoken_type()
     {

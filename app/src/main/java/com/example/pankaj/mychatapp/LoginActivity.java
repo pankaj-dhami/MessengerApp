@@ -40,6 +40,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import static com.example.pankaj.mychatapp.Utility.Validations.isMobileValid;
 import static com.example.pankaj.mychatapp.Utility.Validations.isPasswordValid;
@@ -133,7 +134,7 @@ public class LoginActivity extends Activity implements LoaderManager.LoaderCallb
                 Log.i("LoginActivity", "Sign Up Activity activated.");
                 // this is where you should start the signup Activity
                 // LoginActivity.this.startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
-                //  LoginActivity.this.startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
+                  LoginActivity.this.startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
                  Intent intent = new Intent(LoginActivity.this, MyService.class);
                 //intent.putExtra("message","pankaj");
                  LoginActivity.this.stopService(intent);
@@ -275,7 +276,8 @@ public class LoginActivity extends Activity implements LoaderManager.LoaderCallb
                 //  login success and move to main Activity here.
                 UserModel user =new UserModel();
                 user.Name=mobileStr;
-                user.UserID=10;
+                Random r = new Random();
+                user.UserID=r.nextInt(1000-10) + 10;
                 ApplicationConstants.thisUser=user;
                 startActivity(new Intent(LoginActivity.this, HomeActivity.class));
                 Intent intent = new Intent(LoginActivity.this, MyService.class);

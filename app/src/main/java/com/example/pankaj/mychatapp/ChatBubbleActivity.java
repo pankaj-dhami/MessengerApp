@@ -46,17 +46,21 @@ public class ChatBubbleActivity extends ActionBarActivity {
     private Button buttonSend;
     int userID;
     String mobile;
+    UserModel thisChatUser;
     Intent intent;
     private boolean side = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Intent i = getIntent();
+        Intent myIntent = getIntent();
+        /*Bundle bundle = intent.getExtras();
+        if (bundle!=null) {
 
-        userID = Integer.parseInt(intent.getStringExtra("userID"));
-        mobile = intent.getStringExtra("mobile");
-
+            userID = bundle.getInt("userID");
+            mobile = bundle.getString("mobile");
+        }*/
+        thisChatUser=  ApplicationConstants.chatUser;
         setContentView(R.layout.activity_chat);
 
         buttonSend = (Button) findViewById(R.id.buttonSend);
@@ -97,13 +101,11 @@ public class ChatBubbleActivity extends ActionBarActivity {
 
     private boolean sendChatMessage() {
         chatArrayAdapter.add(new ChatMessage(false, chatText.getText().toString()));
-        chatText.setText("");
         MsgModel msgModel=new MsgModel();
-        msgModel.UserModel=new UserModel();
-        msgModel.UserModel.UserID=userID;
-        msgModel.UserModel.MobileNo=mobile;
+        msgModel.UserModel=thisChatUser;
         msgModel.TextMessage=chatText.getText().toString();
         MyService.sendMessage(msgModel);
+        chatText.setText("");
         return true;
     }
 
@@ -115,8 +117,8 @@ public class ChatBubbleActivity extends ActionBarActivity {
             if (bundle != null) {
                 String code = bundle.getString("code");
                 if (TextUtils.equals(code, "msgModel")) {
-                    MsgModel data = (MsgModel) bundle.getSerializable("data");
-                    if (data.UserModel.UserID == userID) {
+                    MsgModel data = (MsgModel)  ApplicationConstants.msgModel;
+                    if (data.UserModel.UserID == thisChatUser.UserID) {
                         chatArrayAdapter.add(new ChatMessage(true, data.TextMessage));
                     }
                 }

@@ -49,6 +49,7 @@ public class Tab1 extends Fragment {
                     for (UserModel model : ApplicationConstants.friendsList) {
                         String fruitImg = "orange";
                         int fruitImgResId = getResources().getIdentifier(fruitImg, "drawable", "com.example.pankaj.mychatapp");
+                        model.MobileNo=model.Name;
                         model.MyStatus = "" + model.UserID;
                         model.PicImg = fruitImgResId;
                         userArrayAdapter.add(model);
@@ -166,9 +167,9 @@ public class Tab1 extends Fragment {
     public void showText(UserModel selectedModel) {
         Intent intent=new Intent(thisActivity, ChatBubbleActivity.class);
 
-        intent.putExtra("userID",selectedModel.UserID);
-        intent.putExtra("mobile",selectedModel.MobileNo);
-
+     //   intent.putExtra("userID",selectedModel.UserID);
+      //  intent.putExtra("mobile",selectedModel.MobileNo);
+        ApplicationConstants.chatUser=selectedModel;
         startActivity(intent);
         //  startActivity(new Intent("com.example.pankaj.mychatapp.ChatBubbleActivity"));
     }

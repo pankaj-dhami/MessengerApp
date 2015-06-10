@@ -186,7 +186,7 @@ public class RegisterActivity extends Activity implements LoaderManager.LoaderCa
             load.showProgress(false);
 
             if (success) {
-                startActivity(new Intent(RegisterActivity.this,HomeActivity.class));
+                startActivity(new Intent(RegisterActivity.this,LoginActivity.class));
                 //  login success and move to main Activity here.
             } else {
                 if(result!=null)

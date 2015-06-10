@@ -68,7 +68,7 @@ public class MyService extends Service {
     private void publishMessageResults(MsgModel msgModel) {
         Intent intent = new Intent("com.example.pankaj.mychatapp");
         intent.putExtra("code", "msgModel");
-        intent.putExtra("data", msgModel);
+        ApplicationConstants.msgModel=msgModel;
         sendBroadcast(intent);
     }
 
@@ -84,8 +84,6 @@ public class MyService extends Service {
                 // Log.d("result :=", " closed");
                 if (!isReallyStop) {
                     startConnection();
-                } else {
-                    isReallyStop = false;
                 }
                 // ADD CODE TO HANDLE DISCONNECTED EVENT
             }
@@ -96,10 +94,10 @@ public class MyService extends Service {
             public void run() {
                 // Log.d("result :=", " closed");
                 if (!isReallyStop) {
-                    awaitConnection = connection.start();
+                  //  awaitConnection = connection.start();
                     try {
-                        awaitConnection.get();
-                        proxy.invoke("connectUser", ApplicationConstants.thisUser);
+                    //    awaitConnection.get();
+                    //    proxy.invoke("connectUser", ApplicationConstants.thisUser);
 
                     } catch (Exception e) {
                         // TODO Auto-generated catch block
@@ -140,6 +138,7 @@ public class MyService extends Service {
         proxy.on("onConnected", new SubscriptionHandler1<UserModel>() {
             @Override
             public void run(UserModel user) {
+                proxy.invoke("getAllUserList");
                 //     Toast.makeText(MyService.this, "onConnected ", Toast.LENGTH_LONG);
             }
         }, UserModel.class);
