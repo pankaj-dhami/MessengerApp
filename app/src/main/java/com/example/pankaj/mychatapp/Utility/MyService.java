@@ -1,11 +1,17 @@
 package com.example.pankaj.mychatapp.Utility;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 
+import com.example.pankaj.mychatapp.ChatBubbleActivity;
 import com.example.pankaj.mychatapp.Model.MsgModel;
 import com.example.pankaj.mychatapp.Model.UserModel;
+import com.example.pankaj.mychatapp.R;
 
 import java.util.ArrayList;
 
@@ -66,10 +72,36 @@ public class MyService extends Service {
     }
 
     private void publishMessageResults(MsgModel msgModel) {
-        Intent intent = new Intent("com.example.pankaj.mychatapp");
-        intent.putExtra("code", "msgModel");
-        ApplicationConstants.msgModel=msgModel;
-        sendBroadcast(intent);
+        if (ApplicationConstants.ChatBubbleActivity_active) {
+            Intent intent = new Intent("com.example.pankaj.mychatapp");
+            intent.putExtra("code", "msgModel");
+            ApplicationConstants.msgModel = msgModel;
+            sendBroadcast(intent);
+        } else {
+            /*********** Create notification ***********/
+
+            final NotificationManager mgr=
+                    (NotificationManager)this.getSystemService(Context.NOTIFICATION_SERVICE);
+            Notification note=new Notification(R.drawable.ic_action_microphone,
+                    "Android Example Status message!",
+                    System.currentTimeMillis());
+
+            // This pending intent will open after notification click
+            Intent intent=new Intent(this, ChatBubbleActivity.class);
+            ApplicationConstants.chatUser=msgModel.UserModel;
+
+            PendingIntent i=PendingIntent.getActivity(this, 0,
+                    intent,
+                    0);
+
+            note.setLatestEventInfo(this, "New message from "+ msgModel.UserModel.Name,
+                    msgModel.TextMessage
+                    , i);
+
+            //After uncomment this line you will see number of notification arrived
+            //note.number=2;
+            mgr.notify(msgModel.UserModel.UserID, note);
+        }
     }
 
     public void connectSignalR() {
@@ -94,10 +126,10 @@ public class MyService extends Service {
             public void run() {
                 // Log.d("result :=", " closed");
                 if (!isReallyStop) {
-                  //  awaitConnection = connection.start();
+                    //  awaitConnection = connection.start();
                     try {
-                    //    awaitConnection.get();
-                    //    proxy.invoke("connectUser", ApplicationConstants.thisUser);
+                        //    awaitConnection.get();
+                        //    proxy.invoke("connectUser", ApplicationConstants.thisUser);
 
                     } catch (Exception e) {
                         // TODO Auto-generated catch block

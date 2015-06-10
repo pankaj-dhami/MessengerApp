@@ -49,6 +49,17 @@ public class ChatBubbleActivity extends ActionBarActivity {
     UserModel thisChatUser;
     Intent intent;
     private boolean side = false;
+    @Override
+    public void onStart() {
+        super.onStart();
+        ApplicationConstants.ChatBubbleActivity_active = true;
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        ApplicationConstants.ChatBubbleActivity_active = false;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -128,12 +139,14 @@ public class ChatBubbleActivity extends ActionBarActivity {
 
     @Override
     public void onResume() {
+        ApplicationConstants.ChatBubbleActivity_active = true;
         super.onResume();
         registerReceiver(receiver, new IntentFilter("com.example.pankaj.mychatapp"));
     }
 
     @Override
     public void onPause() {
+        ApplicationConstants.ChatBubbleActivity_active = false;
         super.onPause();
         unregisterReceiver(receiver);
     }
