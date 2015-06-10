@@ -1,6 +1,5 @@
 package com.example.pankaj.mychatapp.Utility;
 
-import com.example.pankaj.mychatapp.ChatBubbleActivity;
 import com.example.pankaj.mychatapp.Model.MsgModel;
 import com.example.pankaj.mychatapp.Model.UserModel;
 
@@ -23,12 +22,11 @@ public class ApplicationConstants  {
     public final static String contentTypex_www_form = "application/x-www-form";
     public final static String token_fileName="token_fileName.txt";
 
-    public static ArrayList<UserModel> friendsList=new ArrayList<UserModel>();
+
 
     public static  UserModel thisUser;
     public static  UserModel chatUser;
     public static  MsgModel msgModel;
-    public static boolean ChatBubbleActivity_active;
 
 
     public static String getoken_type()

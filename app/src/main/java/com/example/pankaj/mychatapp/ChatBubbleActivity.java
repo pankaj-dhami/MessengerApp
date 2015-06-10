@@ -4,7 +4,7 @@ package com.example.pankaj.mychatapp;
  * Created by pankaj on 6/8/2015.
  */
 
-import android.app.Activity;
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -52,13 +52,13 @@ public class ChatBubbleActivity extends ActionBarActivity {
     @Override
     public void onStart() {
         super.onStart();
-        ApplicationConstants.ChatBubbleActivity_active = true;
+        MyService.ChatBubbleActivity_active = true;
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        ApplicationConstants.ChatBubbleActivity_active = false;
+        MyService.ChatBubbleActivity_active = false;
     }
 
     @Override
@@ -72,6 +72,9 @@ public class ChatBubbleActivity extends ActionBarActivity {
             mobile = bundle.getString("mobile");
         }*/
         thisChatUser=  ApplicationConstants.chatUser;
+        NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(thisChatUser.UserID);
+
         setContentView(R.layout.activity_chat);
 
         buttonSend = (Button) findViewById(R.id.buttonSend);
@@ -139,14 +142,14 @@ public class ChatBubbleActivity extends ActionBarActivity {
 
     @Override
     public void onResume() {
-        ApplicationConstants.ChatBubbleActivity_active = true;
+        MyService.ChatBubbleActivity_active = true;
         super.onResume();
         registerReceiver(receiver, new IntentFilter("com.example.pankaj.mychatapp"));
     }
 
     @Override
     public void onPause() {
-        ApplicationConstants.ChatBubbleActivity_active = false;
+        MyService.ChatBubbleActivity_active = false;
         super.onPause();
         unregisterReceiver(receiver);
     }

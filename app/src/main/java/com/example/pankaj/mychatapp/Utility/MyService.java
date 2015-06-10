@@ -30,6 +30,9 @@ public class MyService extends Service {
     SignalRFuture<Void> awaitConnection;
     HubConnection connection;
     static HubProxy proxy;
+    public static boolean ChatBubbleActivity_active;
+    public static ArrayList<UserModel> FriendsList = new ArrayList<UserModel>();
+    public static boolean Tab1Activity_active;
     private boolean isReallyStop;
 
     @Override
@@ -65,14 +68,16 @@ public class MyService extends Service {
     }
 
     private void publishFriendsListResults(ArrayList<UserModel> friendsList) {
-        Intent intent = new Intent("com.example.pankaj.mychatapp");
-        intent.putExtra("code", "friendsList");
-        ApplicationConstants.friendsList = friendsList;
-        sendBroadcast(intent);
+        if (Tab1Activity_active) {
+            Intent intent = new Intent("com.example.pankaj.mychatapp");
+            intent.putExtra("code", "friendsList");
+            FriendsList = friendsList;
+            sendBroadcast(intent);
+        }
     }
 
     private void publishMessageResults(MsgModel msgModel) {
-        if (ApplicationConstants.ChatBubbleActivity_active) {
+        if (ChatBubbleActivity_active) {
             Intent intent = new Intent("com.example.pankaj.mychatapp");
             intent.putExtra("code", "msgModel");
             ApplicationConstants.msgModel = msgModel;
@@ -80,23 +85,23 @@ public class MyService extends Service {
         } else {
             /*********** Create notification ***********/
 
-            final NotificationManager mgr=
-                    (NotificationManager)this.getSystemService(Context.NOTIFICATION_SERVICE);
-            Notification note=new Notification(R.drawable.ic_action_microphone,
+            final NotificationManager mgr =
+                    (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
+            Notification note = new Notification(R.drawable.ic_action_microphone,
                     "Android Example Status message!",
                     System.currentTimeMillis());
 
             // This pending intent will open after notification click
-            Intent intent=new Intent(this, ChatBubbleActivity.class);
-            ApplicationConstants.chatUser=msgModel.UserModel;
+            Intent intent = new Intent(this, ChatBubbleActivity.class);
+            ApplicationConstants.chatUser = msgModel.UserModel;
 
-            PendingIntent i=PendingIntent.getActivity(this, 0,
+            PendingIntent i = PendingIntent.getActivity(this, 0,
                     intent,
                     0);
 
-            note.setLatestEventInfo(this, "New message from "+ msgModel.UserModel.Name,
-                    msgModel.TextMessage
-                    , i);
+            note.setLatestEventInfo(this, "New message from " + msgModel.UserModel.Name,
+                    msgModel.TextMessage, i
+            );
 
             //After uncomment this line you will see number of notification arrived
             //note.number=2;
@@ -124,22 +129,8 @@ public class MyService extends Service {
         connection.reconnecting(new Runnable() {
             @Override
             public void run() {
-                // Log.d("result :=", " closed");
-                if (!isReallyStop) {
-                    //  awaitConnection = connection.start();
-                    try {
-                        //    awaitConnection.get();
-                        //    proxy.invoke("connectUser", ApplicationConstants.thisUser);
+                //connection.stop();
 
-                    } catch (Exception e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-
-                    }
-                    // ADD CODE TO HANDLE DISCONNECTED EVENT
-                } else {
-                    isReallyStop = false;
-                }
             }
         });
 

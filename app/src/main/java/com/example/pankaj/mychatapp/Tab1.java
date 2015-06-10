@@ -19,10 +19,10 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.pankaj.mychatapp.Model.UserModel;
 import com.example.pankaj.mychatapp.Utility.ApplicationConstants;
+import com.example.pankaj.mychatapp.Utility.MyService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +46,7 @@ public class Tab1 extends Fragment {
                 String code = bundle.getString("code");
                 if (TextUtils.equals(code, "friendsList")) {
                     userArrayAdapter.clear();
-                    for (UserModel model : ApplicationConstants.friendsList) {
+                    for (UserModel model : MyService.FriendsList) {
                         String fruitImg = "orange";
                         int fruitImgResId = getResources().getIdentifier(fruitImg, "drawable", "com.example.pankaj.mychatapp");
                         model.MobileNo=model.Name;
@@ -62,12 +62,14 @@ public class Tab1 extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        MyService.Tab1Activity_active=true;
         thisActivity.registerReceiver(receiver, new IntentFilter("com.example.pankaj.mychatapp"));
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        MyService.Tab1Activity_active=false;
         thisActivity.unregisterReceiver(receiver);
     }
 
