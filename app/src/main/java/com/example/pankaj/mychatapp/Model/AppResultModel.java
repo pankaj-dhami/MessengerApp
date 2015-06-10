@@ -8,4 +8,5 @@ public class AppResultModel {
     public int ResultCode;
     public String RawResponse;
     public boolean IsValid;
+
 }
