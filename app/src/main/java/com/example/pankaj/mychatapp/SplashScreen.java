@@ -9,7 +9,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.example.pankaj.mychatapp.Utility.MyHandler;
 import com.example.pankaj.mychatapp.Utility.MyService;
 
 import java.io.BufferedReader;
@@ -20,13 +19,6 @@ import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.os.AsyncTask;
-import com.google.android.gms.gcm.*;
-import com.microsoft.windowsazure.messaging.NotificationHub;
-import com.microsoft.windowsazure.notifications.*;
-import com.microsoft.windowsazure.notifications.NotificationsManager;
 
 public class SplashScreen extends Activity {
 

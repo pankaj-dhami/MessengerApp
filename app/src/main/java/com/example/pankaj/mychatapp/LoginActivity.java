@@ -34,7 +34,6 @@ import com.example.pankaj.mychatapp.Utility.LoadingControl;
 import com.example.pankaj.mychatapp.Utility.MyService;
 import com.example.pankaj.mychatapp.Utility.ProfileQuery;
 import com.example.pankaj.mychatapp.WebApiRequest.HttpManager;
-import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 
 import java.io.BufferedWriter;
 import java.io.FileOutputStream;
@@ -277,6 +276,7 @@ public class LoginActivity extends Activity implements LoaderManager.LoaderCallb
                 //  login success and move to main Activity here.
                 UserModel user =new UserModel();
                 user.Name=mobileStr;
+                user.MobileNo=mobileStr;
                 Random r = new Random();
                 user.UserID=r.nextInt(1000-10) + 10;
                 ApplicationConstants.thisUser=user;

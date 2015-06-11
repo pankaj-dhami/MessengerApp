@@ -90,8 +90,8 @@ public class RegisterActivity extends Activity implements LoaderManager.LoaderCa
             public void onClick(View v) {
                 Log.i("LoginActivity", "Sign Up Activity activated.");
                 // this is where you should start the signin Activity
-                Intent intent=new Intent("com.example.pankajdhami.loginactivity.LoginActivity");
-                startActivity(intent);
+              //  Intent intent=new Intent("com.example.pankajdhami.loginactivity.LoginActivity");
+                RegisterActivity.this.startActivity(new Intent(RegisterActivity.this,LoginActivity.class));
             }
         });
     }

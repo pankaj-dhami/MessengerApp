@@ -26,4 +26,14 @@
     <string name="title_section2">Friends</string>
     <string name="title_section3">Chat</string>
     <string name="title_activity_main_activitytab2">MainActivitytab2</string>
+    <string name="title_activity_hub">HubActivity</string>
+
+
+    <string name="usernameHint">Username</string>
+    <string name="passwordHint">Password</string>
+    <string name="loginButton">1. Log in</string>
+    <string name="send_button">2. Send Notification</string>
+<string name="notification_message_tag_hint">
+    Recipient username tag
+</string>
 </resources>

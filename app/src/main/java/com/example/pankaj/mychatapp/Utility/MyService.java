@@ -1,29 +1,32 @@
 package com.example.pankaj.mychatapp.Utility;
 
-import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.IBinder;
-import android.widget.ProgressBar;
 
 import com.example.pankaj.mychatapp.ChatBubbleActivity;
 import com.example.pankaj.mychatapp.Model.MsgModel;
 import com.example.pankaj.mychatapp.Model.UserModel;
 import com.example.pankaj.mychatapp.R;
-import com.google.android.gms.drive.events.ProgressEvent;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.microsoft.windowsazure.messaging.NotificationHub;
-import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 import com.microsoft.windowsazure.notifications.NotificationsManager;
 
-import java.net.MalformedURLException;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import microsoft.aspnet.signalr.client.Platform;
 import microsoft.aspnet.signalr.client.SignalRFuture;
@@ -51,7 +54,8 @@ public class MyService extends Service {
     private NotificationHub hub;
     private final String HubName = "messengerapihub";
     private final String HubListenConnectionString = "Endpoint=sb://messengerapihub-ns.servicebus.windows.net/;SharedAccessKeyName=DefaultListenSharedAccessSignature;SharedAccessKey=VcUULvdA/EK3KWO7K1IAySQYWJt96zfKc2H+BcLMotI=";
-
+    private RegisterClient registerClient;
+    private static final String BACKEND_ENDPOINT = "http://apitoken.azurewebsites.net";
     //endregion
 
 
@@ -80,8 +84,9 @@ public class MyService extends Service {
         NotificationsManager.handleNotifications(MyService.this, SENDER_ID, MyHandler.class);
         gcm = GoogleCloudMessaging.getInstance(MyService.this);
       //  hub = new NotificationHub(HubName, HubListenConnectionString, MyService.this);
-      //  registerWithNotificationHubs();
-        //  publishResults("service created");
+        //registerWithNotificationHubs();
+        registerClient = new RegisterClient(this, BACKEND_ENDPOINT);
+        registerWithNotificationHubs();
 
     }
     @SuppressWarnings("unchecked")
@@ -92,8 +97,8 @@ public class MyService extends Service {
                 try {
 
                     String regid = gcm.register(SENDER_ID);
-                    DialogNotify("Registered Successfully","RegId : " +
-                            hub.register(regid,ApplicationConstants.thisUser.MobileNo).getRegistrationId());
+                    registerClient.register(ApplicationConstants.thisUser.MobileNo, regid, new HashSet<String>());
+                     sendPush("gcm",ApplicationConstants.thisUser.MobileNo,"Welcome user");
                 } catch (Exception e) {
                     DialogNotify("Exception",e.getMessage());
                     return e;
@@ -102,6 +107,43 @@ public class MyService extends Service {
             }
         }.execute(null, null, null);
     }
+
+    public static void sendPush(final String pns, final String userTag,  String message)
+            throws ClientProtocolException, IOException {
+        final String nMessage= "\"" + message + "\"";
+        new AsyncTask<Object, Object, Object>() {
+            @Override
+            protected Object doInBackground(Object... params) {
+                try {
+
+                    String uri = BACKEND_ENDPOINT + "/api/notifications";
+                    uri += "?pns=" + pns;
+                    uri += "&to_tag=" + userTag;
+                    uri += "&userName=" + ApplicationConstants.thisUser.MobileNo;
+
+
+                    HttpPost request = new HttpPost(uri);
+                    // request.addHeader("Authorization", "Basic "+ getAuthorizationHeader());
+                    request.setEntity(new StringEntity(nMessage));
+                    request.addHeader("Content-Type", "application/json");
+
+                    HttpResponse response = new DefaultHttpClient().execute(request);
+
+                    if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+                   //     DialogNotify("MainActivity - Error sending " + pns + " notification",
+                    //            response.getStatusLine().toString());
+                        throw new RuntimeException("Error sending notification");
+                    }
+                } catch (Exception e) {
+                   // DialogNotify("MainActivity - Failed to send " + pns + " notification ", e.getMessage());
+                    return e;
+                }
+
+                return null;
+            }
+        }.execute(null, null, null);
+    }
+
     public void DialogNotify(final String title,final String message)
     {
         final NotificationManager mgr =

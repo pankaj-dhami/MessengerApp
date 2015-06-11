@@ -3,9 +3,10 @@ package com.example.pankaj.mychatapp.Utility;
 /**
  * Created by pankaj.dhami on 6/11/2015.
  */
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.Set;
+
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.util.Log;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -21,9 +22,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.util.Log;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.Set;
 
 public class RegisterClient {
     private static final String PREFS_NAME = "ANHSettings";
@@ -48,7 +49,7 @@ public class RegisterClient {
         this.authorizationHeader = authorizationHeader;
     }
 
-    public void register(String handle, Set<String> tags) throws ClientProtocolException, IOException, JSONException {
+    public void register(String userName, String handle, Set<String> tags) throws ClientProtocolException, IOException, JSONException {
         String registrationId = retrieveRegistrationIdOrRequestNewOne(handle);
 
         JSONObject deviceInfo = new JSONObject();
@@ -56,7 +57,12 @@ public class RegisterClient {
         deviceInfo.put("Handle", handle);
         deviceInfo.put("Tags", new JSONArray(tags));
 
-        int statusCode = upsertRegistration(registrationId, deviceInfo);
+        JSONObject deviceUserInfo=new JSONObject();
+        deviceUserInfo.put("UserName",userName);
+        deviceUserInfo.put("DeviceRegistration",deviceInfo);
+
+
+        int statusCode = upsertRegistration(registrationId, deviceUserInfo);
 
         if (statusCode == HttpStatus.SC_OK) {
             return;
@@ -79,7 +85,7 @@ public class RegisterClient {
             ClientProtocolException {
         HttpPut request = new HttpPut(Backend_Endpoint+"/"+registrationId);
         request.setEntity(new StringEntity(deviceInfo.toString()));
-        request.addHeader("Authorization", "Basic "+authorizationHeader);
+      //  request.addHeader("Authorization", "Basic "+authorizationHeader);
         request.addHeader("Content-Type", "application/json");
         HttpResponse response = httpClient.execute(request);
         int statusCode = response.getStatusLine().getStatusCode();
@@ -91,7 +97,7 @@ public class RegisterClient {
             return settings.getString(REGID_SETTING_NAME, null);
 
         HttpUriRequest request = new HttpPost(Backend_Endpoint+"?handle="+handle);
-        request.addHeader("Authorization", "Basic "+authorizationHeader);
+       // request.addHeader("Authorization", "Basic "+authorizationHeader);
         HttpResponse response = httpClient.execute(request);
         if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
             Log.e("RegisterClient", "Error creating registrationId: " + response.getStatusLine().getStatusCode());
