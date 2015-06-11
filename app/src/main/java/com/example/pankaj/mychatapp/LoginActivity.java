@@ -34,6 +34,7 @@ import com.example.pankaj.mychatapp.Utility.LoadingControl;
 import com.example.pankaj.mychatapp.Utility.MyService;
 import com.example.pankaj.mychatapp.Utility.ProfileQuery;
 import com.example.pankaj.mychatapp.WebApiRequest.HttpManager;
+import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 
 import java.io.BufferedWriter;
 import java.io.FileOutputStream;
