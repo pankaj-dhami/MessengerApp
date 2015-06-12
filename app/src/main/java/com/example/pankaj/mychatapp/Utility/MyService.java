@@ -45,6 +45,7 @@ public class MyService extends Service {
     static HubProxy proxy;
     public static boolean ChatBubbleActivity_active;
     public static ArrayList<UserModel> FriendsList = new ArrayList<UserModel>();
+    public static  UserModel thisUser;
     public static boolean Tab1Activity_active;
     private boolean isReallyStop;
 
@@ -55,7 +56,7 @@ public class MyService extends Service {
     private final String HubName = "messengerapihub";
     private final String HubListenConnectionString = "Endpoint=sb://messengerapihub-ns.servicebus.windows.net/;SharedAccessKeyName=DefaultListenSharedAccessSignature;SharedAccessKey=VcUULvdA/EK3KWO7K1IAySQYWJt96zfKc2H+BcLMotI=";
     private RegisterClient registerClient;
-    private static final String BACKEND_ENDPOINT = "http://apitoken.azurewebsites.net";
+    public static final String BACKEND_ENDPOINT = "http://msgapi.azurewebsites.net";
     //endregion
 
 
@@ -97,8 +98,8 @@ public class MyService extends Service {
                 try {
 
                     String regid = gcm.register(SENDER_ID);
-                    registerClient.register(ApplicationConstants.thisUser.MobileNo, regid, new HashSet<String>());
-                     sendPush("gcm",ApplicationConstants.thisUser.MobileNo,"Welcome user");
+                    registerClient.register(thisUser.MobileNo, regid, new HashSet<String>());
+                     sendPush("gcm", thisUser.MobileNo, "Welcome user");
                 } catch (Exception e) {
                     DialogNotify("Exception",e.getMessage());
                     return e;
@@ -119,7 +120,7 @@ public class MyService extends Service {
                     String uri = BACKEND_ENDPOINT + "/api/notifications";
                     uri += "?pns=" + pns;
                     uri += "&to_tag=" + userTag;
-                    uri += "&userName=" + ApplicationConstants.thisUser.MobileNo;
+                    uri += "&userName=" + thisUser.MobileNo;
 
 
                     HttpPost request = new HttpPost(uri);
@@ -227,9 +228,9 @@ public class MyService extends Service {
             @Override
             public void run() {
                 // Log.d("result :=", " closed");
-                if (!isReallyStop) {
-                    startConnection();
-                }
+            //    if (!isReallyStop) {
+              //      startConnection();
+             //   }
                 // ADD CODE TO HANDLE DISCONNECTED EVENT
             }
         });
@@ -254,7 +255,7 @@ public class MyService extends Service {
             awaitConnection = connection.start();
             try {
                 awaitConnection.get();
-                proxy.invoke("connectUser", ApplicationConstants.thisUser);
+                proxy.invoke("connectUser", thisUser);
                 isConnected = true;
             } catch (Exception e) {
                 // TODO Auto-generated catch block
@@ -298,6 +299,6 @@ public class MyService extends Service {
 
     public static void sendMessage(MsgModel msgModel) {
 
-        proxy.invoke("sendMessageToGroup", ApplicationConstants.thisUser, msgModel);
+        proxy.invoke("sendMessageToGroup", thisUser, msgModel);
     }
 }

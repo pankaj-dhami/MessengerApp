@@ -279,9 +279,10 @@ public class LoginActivity extends Activity implements LoaderManager.LoaderCallb
                 user.MobileNo=mobileStr;
                 Random r = new Random();
                 user.UserID=r.nextInt(1000-10) + 10;
-                ApplicationConstants.thisUser=user;
+                MyService.thisUser=user;
                 startActivity(new Intent(LoginActivity.this, HomeActivity.class));
                 Intent intent = new Intent(LoginActivity.this, MyService.class);
+                intent.putExtra("message","start service");
                 LoginActivity.this.startService(intent);
             } else {
                 if (result != null) {

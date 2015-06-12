@@ -1,6 +1,7 @@
 package com.example.pankaj.mychatapp.WebApiRequest;
 
 import com.example.pankaj.mychatapp.Model.AppResultModel;
+import com.example.pankaj.mychatapp.Model.MsgModel;
 import com.example.pankaj.mychatapp.Utility.ApplicationConstants;
 
 import java.io.BufferedReader;
@@ -14,11 +15,10 @@ import java.net.URL;
  */
 public class APIHandler {
 
-    public static AppResultModel createPost(String uri,String query,String contentType)
-    {
-        StringBuilder sb=new StringBuilder();
-        BufferedReader br=null;
-        int responseCode=0;
+    public static AppResultModel createPost(String uri, String query, String contentType) {
+        StringBuilder sb = new StringBuilder();
+        BufferedReader br = null;
+        int responseCode = 0;
         try {
             URL url = new URL(uri);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
@@ -43,21 +43,19 @@ public class APIHandler {
             }
 
             System.out.println(sb.toString());
-        }
-        catch (Exception ex){
+        } catch (Exception ex) {
 
         }
-        AppResultModel result=  new AppResultModel();
-        result.RawResponse=sb.toString();
-        result.ResultCode=responseCode;
+        AppResultModel result = new AppResultModel();
+        result.RawResponse = sb.toString();
+        result.ResultCode = responseCode;
         return result;
     }
 
-    public static AppResultModel createPostWithAuth(String uri,String query,String contentType)
-    {
-        StringBuilder sb=new StringBuilder();
-        BufferedReader br=null;
-        int responseCode=0;
+    public static AppResultModel createPostWithAuth(String uri, String query, String contentType) {
+        StringBuilder sb = new StringBuilder();
+        BufferedReader br = null;
+        int responseCode = 0;
         try {
             URL url = new URL(uri);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
@@ -76,15 +74,14 @@ public class APIHandler {
             System.out.println("Post parameters : " + query);
             System.out.println("Response Code : " + responseCode);
 
-            if(responseCode ==HttpURLConnection.HTTP_OK) {
+            if (responseCode == HttpURLConnection.HTTP_OK) {
                 br = new BufferedReader(new InputStreamReader(con.getInputStream()));
                 String line;
                 while ((line = br.readLine()) != null) {
                     sb.append(line + "\n");
                 }
                 System.out.println(sb.toString());
-            }
-            else {
+            } else {
                 sb.append(con.getResponseMessage());
               /*  if (responseCode ==HttpURLConnection.HTTP_BAD_REQUEST)
                 {
@@ -95,15 +92,53 @@ public class APIHandler {
                     sb.append(con.getResponseMessage());
                 }*/
             }
-        }
-        catch (Exception ex){
+        } catch (Exception ex) {
 
         }
-        AppResultModel result=  new AppResultModel();
-        result.ResultCode=responseCode;
-        result.RawResponse=sb.toString();
+        AppResultModel result = new AppResultModel();
+        result.ResultCode = responseCode;
+        result.RawResponse = sb.toString();
         return result;
     }
 
+    public static AppResultModel createGetWithAuth(String uri, String query, String contentType) {
+        StringBuilder sb = new StringBuilder();
+        BufferedReader br = null;
+        int responseCode = 0;
+        try {
+            URL url = new URL(uri + query);
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            String basicAuth = ApplicationConstants.getoken_type() + " " + ApplicationConstants.getAccess_token();
+            // con.setRequestProperty("Authorization", basicAuth);
+            con.setRequestProperty("Content-Type", contentType);
+            con.setRequestMethod("GET");
+            responseCode = con.getResponseCode();
+
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+                String line;
+                while ((line = br.readLine()) != null) {
+                    sb.append(line + "\n");
+                }
+                System.out.println(sb.toString());
+            } else {
+                sb.append(con.getResponseMessage());
+              /*  if (responseCode ==HttpURLConnection.HTTP_BAD_REQUEST)
+                {
+                    sb.append(con.getResponseMessage());
+                }
+                else if(responseCode ==HttpURLConnection.HTTP_CONFLICT )
+                {
+                    sb.append(con.getResponseMessage());
+                }*/
+            }
+        } catch (Exception ex) {
+
+        }
+        AppResultModel result = new AppResultModel();
+        result.ResultCode = responseCode;
+        result.RawResponse = sb.toString();
+        return result;
+    }
 
 }

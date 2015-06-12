@@ -24,7 +24,7 @@ public class ApplicationConstants  {
 
 
 
-    public static  UserModel thisUser;
+
     public static  UserModel chatUser;
     public static  MsgModel msgModel;
 

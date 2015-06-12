@@ -14,6 +14,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.pankaj.mychatapp.Utility.MyService;
+
 import java.util.Locale;
 
 
@@ -81,6 +83,18 @@ public class HomeActivity extends ActionBarActivity implements ActionBar.TabList
         }
     }
 
+
+    @Override
+    protected void onPause() {
+     //   MyService.HomeActivity_active=false;
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+      //  MyService.HomeActivity_active=true;
+        super.onResume();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
