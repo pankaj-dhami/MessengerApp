@@ -3,6 +3,7 @@ package com.example.pankaj.mychatapp;
 import android.app.Activity;
 import android.app.LoaderManager;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
@@ -30,9 +31,11 @@ import android.widget.Toast;
 import com.example.pankaj.mychatapp.Model.AppResultModel;
 import com.example.pankaj.mychatapp.Model.UserModel;
 import com.example.pankaj.mychatapp.Utility.ApplicationConstants;
+import com.example.pankaj.mychatapp.Utility.HubNotificationService;
 import com.example.pankaj.mychatapp.Utility.LoadingControl;
 import com.example.pankaj.mychatapp.Utility.MyService;
 import com.example.pankaj.mychatapp.Utility.ProfileQuery;
+import com.example.pankaj.mychatapp.Utility.SqlLiteDb;
 import com.example.pankaj.mychatapp.WebApiRequest.HttpManager;
 
 import java.io.BufferedWriter;
@@ -40,7 +43,6 @@ import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import static com.example.pankaj.mychatapp.Utility.Validations.isMobileValid;
 import static com.example.pankaj.mychatapp.Utility.Validations.isPasswordValid;
@@ -257,12 +259,12 @@ public class LoginActivity extends Activity implements LoaderManager.LoaderCallb
             // or call external service
             // following try-catch just simulates network access
             try {
-                result = HttpManager.getToken(mobileStr, passwordStr);
+                HttpManager manager=new HttpManager(LoginActivity.this);
+                result = manager.getToken(mobileStr, passwordStr);
                 return result.IsValid;
             } catch (Exception e) {
                 return false;
             }
-
         }
 
         @Override
@@ -274,15 +276,20 @@ public class LoginActivity extends Activity implements LoaderManager.LoaderCallb
             if (success) {
               //  saveToFile(ApplicationConstants.token_fileName, ApplicationConstants.getAccess_token());
                 //  login success and move to main Activity here.
-                UserModel user =new UserModel();
-                user.Name=mobileStr;
-                user.MobileNo=mobileStr;
-                Random r = new Random();
-                user.UserID=r.nextInt(1000-10) + 10;
-                ApplicationConstants.thisUser=user;
+
+                SqlLiteDb entity=new SqlLiteDb(LoginActivity.this);
+                entity.open();
+                ApplicationConstants.thisUser.Name=ApplicationConstants.thisUser.MobileNo;
+                entity.updateUser(ApplicationConstants.thisUser);
+                entity.close();
                 startActivity(new Intent(LoginActivity.this, HomeActivity.class));
                 Intent intent = new Intent(LoginActivity.this, MyService.class);
+               // intent.putExtra("msg","start");
                 LoginActivity.this.startService(intent);
+                LoginActivity.this.startService(new Intent(LoginActivity.this, HubNotificationService.class));
+                 HttpManager.updateNewFriendsList(fetchContacts(), ApplicationConstants.thisUser.UserID);
+
+
             } else {
                 if (result != null) {
                     // login failure
@@ -308,6 +315,79 @@ public class LoginActivity extends Activity implements LoaderManager.LoaderCallb
         protected void onCancelled() {
             userLoginTask = null;
             load.showProgress(false);
+        }
+
+        public ArrayList<UserModel> fetchContacts() {
+
+            String phoneNumber = null;
+            String email = null;
+            ArrayList<UserModel> friendList=new ArrayList<UserModel>();
+
+            Uri CONTENT_URI = ContactsContract.Contacts.CONTENT_URI;
+            String _ID = ContactsContract.Contacts._ID;
+            String DISPLAY_NAME = ContactsContract.Contacts.DISPLAY_NAME;
+            String HAS_PHONE_NUMBER = ContactsContract.Contacts.HAS_PHONE_NUMBER;
+
+            Uri PhoneCONTENT_URI = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
+            String Phone_CONTACT_ID = ContactsContract.CommonDataKinds.Phone.CONTACT_ID;
+            String NUMBER = ContactsContract.CommonDataKinds.Phone.NUMBER;
+
+            Uri EmailCONTENT_URI =  ContactsContract.CommonDataKinds.Email.CONTENT_URI;
+            String EmailCONTACT_ID = ContactsContract.CommonDataKinds.Email.CONTACT_ID;
+            String DATA = ContactsContract.CommonDataKinds.Email.DATA;
+
+            StringBuffer output = new StringBuffer();
+
+            ContentResolver contentResolver = getContentResolver();
+
+            Cursor cursor = contentResolver.query(CONTENT_URI, null,null, null, null);
+
+            // Loop for every contact in the phone
+            if (cursor.getCount() > 0) {
+
+                while (cursor.moveToNext()) {
+
+                    String contact_id = cursor.getString(cursor.getColumnIndex( _ID ));
+                    String name = cursor.getString(cursor.getColumnIndex( DISPLAY_NAME ));
+
+                    int hasPhoneNumber = Integer.parseInt(cursor.getString(cursor.getColumnIndex( HAS_PHONE_NUMBER )));
+
+                    if (hasPhoneNumber > 0) {
+
+                        output.append("\n First Name:" + name);
+
+                        // Query and loop for every phone number of the contact
+                        Cursor phoneCursor = contentResolver.query(PhoneCONTENT_URI, null, Phone_CONTACT_ID + " = ?", new String[] { contact_id }, null);
+
+                        while (phoneCursor.moveToNext()) {
+                            phoneNumber = phoneCursor.getString(phoneCursor.getColumnIndex(NUMBER));
+                            output.append("\n Phone number:" + phoneNumber);
+                            UserModel userModel=new UserModel();
+                            userModel.Name=name;
+                            userModel.MobileNo=phoneNumber;
+                            friendList.add(userModel);
+                        }
+
+                        phoneCursor.close();
+
+                        // Query and loop for every email of the contact
+                      /*  Cursor emailCursor = contentResolver.query(EmailCONTENT_URI,	null, EmailCONTACT_ID+ " = ?", new String[] { contact_id }, null);
+
+                        while (emailCursor.moveToNext()) {
+
+                            email = emailCursor.getString(emailCursor.getColumnIndex(DATA));
+
+                            output.append("\nEmail:" + email);
+
+                        }
+
+                        emailCursor.close();*/
+                    }
+
+                    output.append("\n");
+                }
+            }
+            return  friendList;
         }
     }
 }

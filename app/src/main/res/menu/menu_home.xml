@@ -6,7 +6,8 @@
     <item android:id="@+id/action_speech"
         android:icon="@drawable/ic_action_microphone"
         app:showAsAction="ifRoom"
-        android:title="Speech"/>
+        android:title="Speech"
+        />
    <!-- <item android:id="@+id/action_call"
         android:icon="@drawable/ic_action_call"
         app:showAsAction="ifRoom"

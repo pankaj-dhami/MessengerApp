@@ -49,8 +49,7 @@ public class Tab1 extends Fragment {
                     for (UserModel model : MyService.FriendsList) {
                         String fruitImg = "orange";
                         int fruitImgResId = getResources().getIdentifier(fruitImg, "drawable", "com.example.pankaj.mychatapp");
-                        model.MobileNo=model.Name;
-                        model.MyStatus = "" + model.UserID;
+                        model.MyStatus = model.MobileNo +"/"+  model.UserID;
                         model.PicImg = fruitImgResId;
                         userArrayAdapter.add(model);
                     }
@@ -62,14 +61,14 @@ public class Tab1 extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        MyService.Tab1Activity_active=true;
+        MyService.Tab1Activity_active = true;
         thisActivity.registerReceiver(receiver, new IntentFilter("com.example.pankaj.mychatapp"));
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        MyService.Tab1Activity_active=false;
+        MyService.Tab1Activity_active = false;
         thisActivity.unregisterReceiver(receiver);
     }
 
@@ -86,16 +85,11 @@ public class Tab1 extends Fragment {
 
         //  View v =inflater.inflate(R.layout.tab_1,container,false);
 
-        List<String[]> fruitList = readData();
-        for (String[] fruitData : fruitList) {
-            String fruitImg = fruitData[0];
-            String fruitName = fruitData[1];
-            String calories = fruitData[2];
+        userArrayAdapter.clear();
+        for (UserModel model : MyService.FriendsList) {
+            String fruitImg = "orange";
             int fruitImgResId = getResources().getIdentifier(fruitImg, "drawable", "com.example.pankaj.mychatapp");
-
-            UserModel model = new UserModel();
-            model.Name = fruitName;
-            model.MyStatus = calories;
+            model.MyStatus = model.MobileNo +"/"+ model.UserID;
             model.PicImg = fruitImgResId;
             userArrayAdapter.add(model);
         }
@@ -167,11 +161,11 @@ public class Tab1 extends Fragment {
     }
 
     public void showText(UserModel selectedModel) {
-        Intent intent=new Intent(thisActivity, ChatBubbleActivity.class);
+        Intent intent = new Intent(thisActivity, ChatBubbleActivity.class);
 
-     //   intent.putExtra("userID",selectedModel.UserID);
-      //  intent.putExtra("mobile",selectedModel.MobileNo);
-        ApplicationConstants.chatUser=selectedModel;
+        //   intent.putExtra("userID",selectedModel.UserID);
+        //  intent.putExtra("mobile",selectedModel.MobileNo);
+        ApplicationConstants.chatUser = selectedModel;
         startActivity(intent);
         //  startActivity(new Intent("com.example.pankaj.mychatapp.ChatBubbleActivity"));
     }

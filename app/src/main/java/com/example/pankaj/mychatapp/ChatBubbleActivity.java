@@ -32,6 +32,7 @@ import android.widget.TextView;
 import com.example.pankaj.mychatapp.Model.MsgModel;
 import com.example.pankaj.mychatapp.Model.UserModel;
 import com.example.pankaj.mychatapp.Utility.ApplicationConstants;
+import com.example.pankaj.mychatapp.Utility.HubNotificationService;
 import com.example.pankaj.mychatapp.Utility.MyService;
 
 import java.util.ArrayList;
@@ -52,13 +53,13 @@ public class ChatBubbleActivity extends ActionBarActivity {
     @Override
     public void onStart() {
         super.onStart();
-        MyService.ChatBubbleActivity_active = true;
+        HubNotificationService.ChatBubbleActivity_active = true;
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        MyService.ChatBubbleActivity_active = false;
+        HubNotificationService.ChatBubbleActivity_active = false;
     }
 
     @Override

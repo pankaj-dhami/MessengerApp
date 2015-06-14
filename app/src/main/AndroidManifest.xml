@@ -82,6 +82,11 @@
             android:name=".HubActivity"
             android:label="@string/title_activity_hub" >
         </activity>
+
+        <service
+            android:name=".Utility.HubNotificationService"
+            >
+        </service>
     </application>
 
 </manifest>

@@ -1,5 +1,6 @@
 package com.example.pankaj.mychatapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -13,6 +14,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.example.pankaj.mychatapp.Utility.MyService;
 
 import java.util.Locale;
 
@@ -82,6 +85,7 @@ public class HomeActivity extends ActionBarActivity implements ActionBar.TabList
     }
 
 
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -100,7 +104,9 @@ public class HomeActivity extends ActionBarActivity implements ActionBar.TabList
         if (id == R.id.action_settings) {
             return true;
         }
-
+        if (id == R.id.action_speech) {
+            MyService.myService.disconnectUser();
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -113,6 +119,12 @@ public class HomeActivity extends ActionBarActivity implements ActionBar.TabList
 
     @Override
     public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopService(new Intent(this, MyService.class));
     }
 
     @Override
