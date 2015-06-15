@@ -5,6 +5,8 @@ import android.os.AsyncTask;
 import android.util.Base64;
 
 import com.example.pankaj.mychatapp.Model.AppResultModel;
+import com.example.pankaj.mychatapp.Model.MsgModel;
+import com.example.pankaj.mychatapp.Model.SendMsgModel;
 import com.example.pankaj.mychatapp.Model.UserModel;
 import com.example.pankaj.mychatapp.Utility.ApplicationConstants;
 import com.example.pankaj.mychatapp.Utility.MyService;
@@ -152,6 +154,47 @@ public class HttpManager {
         return resultList;
     }
 
+    public  ArrayList<UserModel> getUpdatedFriendData( int userID) {
+        JSONArray jsonarr = null;
+        final ArrayList<UserModel> resultList  = new ArrayList<UserModel>();
+        try {
+            final String uri = ApplicationConstants.ServerAddress + "/api/Friends?userID=" + userID;
+            AppResultModel result = new AppResultModel();
+
+            new AsyncTask<Objects,Objects,Objects>() {
+                @Override
+                protected Objects doInBackground(Objects... params) {
+                    AppResultModel response = APIHandler.getData(uri);
+                    if (response.ResultCode == HttpURLConnection.HTTP_OK)//successful
+                    {
+                        try {
+                            SqlLiteDb entity=new SqlLiteDb(context);
+                            entity.open();
+                            JSONArray jsonarr = new JSONArray(response.RawResponse);
+
+                            for (int i = 0; i < jsonarr.length(); i++) {
+                                JSONObject obj = jsonarr.getJSONObject(i);
+                                UserModel user = getUserModel(obj);
+                                resultList.add(user);
+                                entity.updateFriends(user);
+                            }
+                            entity.close();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        MyService.myService.publishFriendsListResults(resultList);
+                    }
+                    return null;
+                }
+            }.execute(null,null,null);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return resultList;
+    }
+
     public static UserModel getUserModel(JSONObject obj) throws JSONException {
         UserModel user = new UserModel();
         user.Name = obj.getString("Name");
@@ -162,5 +205,33 @@ public class HttpManager {
         user.PictureUrl = obj.getString("PictureUrl");
         user.PicData = Base64.decode(user.PictureUrl, Base64.DEFAULT);
         return user;
+    }
+
+    public  void  sendMessageToUser(MsgModel msgModel)
+    {
+        SendMsgModel msg=new SendMsgModel();
+        SqlLiteDb entity=new SqlLiteDb(context);
+        entity.open();
+        msg.FromUser= entity.getUser();
+        msg.Message=msgModel;
+        entity.close();
+        GsonBuilder builder = new GsonBuilder();
+        Gson gson = builder.create();
+        final String query = gson.toJson(msg);
+
+        new AsyncTask<Objects,Objects,Objects>() {
+            @Override
+            protected Objects doInBackground(Objects... params) {
+                AppResultModel response = APIHandler.createPost(ApplicationConstants.ServerAddress+"/api/Notifications/SendMessage",
+                        query, ApplicationConstants.contentTypeJson);
+                if (response.ResultCode == HttpURLConnection.HTTP_OK)//successful
+                {
+
+                }
+                return null;
+            }
+        }.execute(null, null, null);
+
+
     }
 }

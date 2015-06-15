@@ -85,10 +85,12 @@ public class HomeActivity extends ActionBarActivity implements ActionBar.TabList
                             .setText(mSectionsPagerAdapter.getPageTitle(i))
                             .setTabListener(this));
         }
-        new HttpManager(this)
-                .updateNewFriendsList(
-                        new Common(this).fetchContacts(),
-                        ApplicationConstants.thisUser.UserID);
+        // getUpdatedFriendData
+        HttpManager manager = new HttpManager(this);
+        manager.getUpdatedFriendData(ApplicationConstants.thisUser.UserID);
+        manager.updateNewFriendsList(
+                new Common(this).fetchContacts(),
+                ApplicationConstants.thisUser.UserID);
     }
 
 

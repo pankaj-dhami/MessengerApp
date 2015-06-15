@@ -61,7 +61,7 @@ public class MyHandler extends NotificationsHandler {
                                 MsgModel msgModel=new MsgModel();
                                 msgModel.UserModel=user;
                                 msgModel.TextMessage=msg;
-                                sendNotification(msg);
+                             //   sendNotification(msg);
                                mainActivity.publishMessageResults(msgModel);
                             }
                         } catch (JSONException e) {

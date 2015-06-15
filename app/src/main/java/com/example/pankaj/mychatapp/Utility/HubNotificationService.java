@@ -37,7 +37,7 @@ public class HubNotificationService extends Service {
     private final String HubListenConnectionString = "Endpoint=sb://messengerapihub-ns.servicebus.windows.net/;SharedAccessKeyName=DefaultListenSharedAccessSignature;SharedAccessKey=VcUULvdA/EK3KWO7K1IAySQYWJt96zfKc2H+BcLMotI=";
     private RegisterClient registerClient;
     public static final String BACKEND_ENDPOINT = "http://apitoken.azurewebsites.net";
-    static UserModel thisUser;
+    public static UserModel thisUser;
     //endregion
 
     //region variables

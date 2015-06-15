@@ -34,6 +34,7 @@ import com.example.pankaj.mychatapp.Model.UserModel;
 import com.example.pankaj.mychatapp.Utility.ApplicationConstants;
 import com.example.pankaj.mychatapp.Utility.HubNotificationService;
 import com.example.pankaj.mychatapp.Utility.MyService;
+import com.example.pankaj.mychatapp.WebApiRequest.HttpManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -119,7 +120,7 @@ public class ChatBubbleActivity extends ActionBarActivity {
         MsgModel msgModel=new MsgModel();
         msgModel.UserModel=thisChatUser;
         msgModel.TextMessage=chatText.getText().toString();
-        MyService.sendMessage(msgModel);
+        new HttpManager(this).sendMessageToUser(msgModel);
         chatText.setText("");
         return true;
     }

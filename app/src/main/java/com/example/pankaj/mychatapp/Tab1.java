@@ -24,7 +24,6 @@ import com.example.pankaj.mychatapp.Model.UserModel;
 import com.example.pankaj.mychatapp.Utility.ApplicationConstants;
 import com.example.pankaj.mychatapp.Utility.MyService;
 import com.example.pankaj.mychatapp.Utility.SqlLiteDb;
-import com.example.pankaj.mychatapp.WebApiRequest.HttpManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -82,7 +81,6 @@ public class Tab1 extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        entity=new SqlLiteDb(thisActivity);
         colorIndex = 0;
         thisActivity = getActivity();
         View v = inflater.inflate(R.layout.tab_1, container, false);
@@ -92,6 +90,7 @@ public class Tab1 extends Fragment {
 
 
         //  View v =inflater.inflate(R.layout.tab_1,container,false);
+        entity=new SqlLiteDb(thisActivity);
         entity.open();
         MyService.FriendsList= entity.getFriendsList();
         entity.close();
