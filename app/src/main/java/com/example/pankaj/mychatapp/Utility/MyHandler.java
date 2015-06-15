@@ -4,15 +4,16 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
-import android.text.TextUtils;
 
 import com.example.pankaj.mychatapp.Model.AppResultModel;
+import com.example.pankaj.mychatapp.Model.MsgModel;
+import com.example.pankaj.mychatapp.Model.UserModel;
 import com.example.pankaj.mychatapp.R;
 import com.example.pankaj.mychatapp.SplashScreen;
 import com.example.pankaj.mychatapp.WebApiRequest.APIHandler;
-import com.example.pankaj.mychatapp.WebApiRequest.HttpManager;
 import com.microsoft.windowsazure.notifications.NotificationsHandler;
 
 import org.json.JSONArray;
@@ -20,8 +21,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.HttpURLConnection;
-
-import microsoft.aspnet.signalr.client.http.HttpConnection;
 
 /**
  * Created by pankaj.dhami on 6/11/2015.
@@ -33,34 +32,49 @@ public class MyHandler extends NotificationsHandler {
     NotificationCompat.Builder builder;
     Context ctx;
 
-    static public MyService mainActivity;
+    static public HubNotificationService mainActivity;
 
     @Override
     public void onReceive(Context context, Bundle bundle) {
         ctx = context;
         String nhMessage = bundle.getString("message");
-        // sendNotification(nhMessage);
-        //mainActivity.DialogNotify("Received Notification",nhMessage);
-        if (TextUtils.equals(nhMessage, "pendingMessages")) {
-            AppResultModel model = APIHandler.createGetWithAuth(mainActivity.BACKEND_ENDPOINT, "?userID=" + MyService.thisUser.UserID, ApplicationConstants.contentTypeJson);
-            if (model.ResultCode == HttpURLConnection.HTTP_OK) {
-                try {
-                    JSONArray jsonMsg = new JSONArray(model.RawResponse);
-                    for (int i = 0; i < jsonMsg.length(); i++) {
-                        JSONObject obj = jsonMsg.getJSONObject(i);
-                        String msg = obj.getString("TextMessage");
-                        String user = obj.getJSONObject("UserModel").getString("MobileNo");
+        if (nhMessage.equals("pendingMessage")) {
 
-                        mainActivity.DialogNotify("Received Notification from " + user, msg);
+            new AsyncTask<Object, Object, Object>() {
+
+                @Override
+                protected Object doInBackground(Object... params) {
+
+                    AppResultModel resultModel = APIHandler.getData(mainActivity.BACKEND_ENDPOINT + "/api/Notifications/GetPendingMsg?userID=" + mainActivity.thisUser.UserID);
+                    if (resultModel.ResultCode == HttpURLConnection.HTTP_OK) {
+                        try {
+                            JSONArray arr = new JSONArray(resultModel.RawResponse);
+                            for (int i = 0; i < arr.length(); i++) {
+                                JSONObject obj = arr.getJSONObject(i);
+                                String msg= obj.getString("TextMessage");
+                                JSONObject fromUser=obj.getJSONObject("UserModel");
+                                UserModel user =new UserModel();
+                                user.Name=fromUser.getString("Name");
+                                user.MobileNo=fromUser.getString("MobileNo");
+                              //  user.Password=fromUser.getString("Password");
+                                user.UserID=fromUser.getInt("UserID");
+                                MsgModel msgModel=new MsgModel();
+                                msgModel.UserModel=user;
+                                msgModel.TextMessage=msg;
+                                sendNotification(msg);
+                               mainActivity.publishMessageResults(msgModel);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                    return null;
                 }
+            }.execute(null,null,null);
 
-            }
         }
-        sendNotification(nhMessage);
-
+      //  sendNotification(nhMessage);
+        //  mainActivity.DialogNotify("Received Notification",nhMessage);
     }
 
     private void sendNotification(String msg) {
@@ -81,4 +95,6 @@ public class MyHandler extends NotificationsHandler {
         mBuilder.setContentIntent(contentIntent);
         mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
     }
+
+
 }

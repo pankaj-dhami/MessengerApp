@@ -1,5 +1,6 @@
 package com.example.pankaj.mychatapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -84,6 +85,7 @@ public class HomeActivity extends ActionBarActivity implements ActionBar.TabList
     }
 
 
+
     @Override
     protected void onPause() {
      //   MyService.HomeActivity_active=false;
@@ -114,7 +116,9 @@ public class HomeActivity extends ActionBarActivity implements ActionBar.TabList
         if (id == R.id.action_settings) {
             return true;
         }
-
+        if (id == R.id.action_speech) {
+            MyService.myService.disconnectUser();
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -127,6 +131,12 @@ public class HomeActivity extends ActionBarActivity implements ActionBar.TabList
 
     @Override
     public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopService(new Intent(this, MyService.class));
     }
 
     @Override

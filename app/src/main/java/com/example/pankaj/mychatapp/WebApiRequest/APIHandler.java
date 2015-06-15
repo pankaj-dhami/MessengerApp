@@ -1,8 +1,18 @@
 package com.example.pankaj.mychatapp.WebApiRequest;
 
+import android.os.StrictMode;
+import android.util.Log;
+
 import com.example.pankaj.mychatapp.Model.AppResultModel;
-import com.example.pankaj.mychatapp.Model.MsgModel;
 import com.example.pankaj.mychatapp.Utility.ApplicationConstants;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -16,6 +26,8 @@ import java.net.URL;
 public class APIHandler {
 
     public static AppResultModel createPost(String uri, String query, String contentType) {
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
         StringBuilder sb = new StringBuilder();
         BufferedReader br = null;
         int responseCode = 0;
@@ -44,7 +56,7 @@ public class APIHandler {
 
             System.out.println(sb.toString());
         } catch (Exception ex) {
-
+            ex.printStackTrace();
         }
         AppResultModel result = new AppResultModel();
         result.RawResponse = sb.toString();
@@ -112,17 +124,19 @@ public class APIHandler {
             // con.setRequestProperty("Authorization", basicAuth);
             con.setRequestProperty("Content-Type", contentType);
             con.setRequestMethod("GET");
-            responseCode = con.getResponseCode();
 
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                br = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                String line;
-                while ((line = br.readLine()) != null) {
-                    sb.append(line + "\n");
-                }
-                System.out.println(sb.toString());
-            } else {
-                sb.append(con.getResponseMessage());
+            // responseCode = con.getResponseCode();
+
+            // if(responseCode ==HttpURLConnection.HTTP_OK) {
+            br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+            String line;
+            while ((line = br.readLine()) != null) {
+                sb.append(line + "\n");
+            }
+            System.out.println(sb.toString());
+            // }
+            // else {
+            //     sb.append(con.getResponseMessage());
               /*  if (responseCode ==HttpURLConnection.HTTP_BAD_REQUEST)
                 {
                     sb.append(con.getResponseMessage());
@@ -131,7 +145,7 @@ public class APIHandler {
                 {
                     sb.append(con.getResponseMessage());
                 }*/
-            }
+            // }
         } catch (Exception ex) {
 
         }
@@ -140,5 +154,32 @@ public class APIHandler {
         result.RawResponse = sb.toString();
         return result;
     }
+
+    public static AppResultModel getData(String uri) {
+        HttpClient httpClient;
+        String raw = "";
+        int responseCode = 0;
+        httpClient = new DefaultHttpClient();
+        try {
+            HttpUriRequest request = new HttpGet(uri);
+            // request.addHeader("Authorization", "Basic "+authorizationHeader);
+            HttpResponse response = httpClient.execute(request);
+            if ((responseCode = response.getStatusLine().getStatusCode()) != HttpStatus.SC_OK) {
+                Log.e("RegisterClient", "Error creating registrationId: " + response.getStatusLine().getStatusCode());
+                //  throw new RuntimeException("Error creating Notification Hubs registrationId");
+            }
+            raw = EntityUtils.toString(response.getEntity());
+
+
+        } catch (Exception ex) {
+            System.out.println(ex);
+        }
+        AppResultModel result = new AppResultModel();
+        result.ResultCode = responseCode;
+        result.RawResponse = raw;
+        return result;
+
+    }
+
 
 }
