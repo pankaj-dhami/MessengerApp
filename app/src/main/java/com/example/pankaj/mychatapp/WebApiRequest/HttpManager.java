@@ -8,6 +8,7 @@ import com.example.pankaj.mychatapp.Model.AppResultModel;
 import com.example.pankaj.mychatapp.Model.UserModel;
 import com.example.pankaj.mychatapp.Utility.ApplicationConstants;
 import com.example.pankaj.mychatapp.Utility.MyService;
+import com.example.pankaj.mychatapp.Utility.SqlLiteDb;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -103,7 +104,7 @@ public class HttpManager {
         return result;
     }
 
-    public static ArrayList<UserModel> updateNewFriendsList(ArrayList<UserModel> arrayContacts, int userID) {
+    public  ArrayList<UserModel> updateNewFriendsList(ArrayList<UserModel> arrayContacts, int userID) {
         JSONArray jsonarr = null;
         final ArrayList<UserModel> resultList  = new ArrayList<UserModel>();
         try {
@@ -123,13 +124,17 @@ public class HttpManager {
                      if (response.ResultCode == HttpURLConnection.HTTP_OK)//successful
                      {
                          try {
+                             SqlLiteDb entity=new SqlLiteDb(context);
+                             entity.open();
                              JSONArray jsonarr = new JSONArray(response.RawResponse);
 
                              for (int i = 0; i < jsonarr.length(); i++) {
                                  JSONObject obj = jsonarr.getJSONObject(i);
                                  UserModel user = getUserModel(obj);
                                  resultList.add(user);
+                                 entity.createFriendsEntry(user);
                              }
+                             entity.close();
                          } catch (JSONException e) {
                              e.printStackTrace();
                          }

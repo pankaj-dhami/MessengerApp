@@ -15,7 +15,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.pankaj.mychatapp.Utility.ApplicationConstants;
+import com.example.pankaj.mychatapp.Utility.Common;
 import com.example.pankaj.mychatapp.Utility.MyService;
+import com.example.pankaj.mychatapp.WebApiRequest.HttpManager;
 
 import java.util.Locale;
 
@@ -82,19 +85,22 @@ public class HomeActivity extends ActionBarActivity implements ActionBar.TabList
                             .setText(mSectionsPagerAdapter.getPageTitle(i))
                             .setTabListener(this));
         }
+        new HttpManager(this)
+                .updateNewFriendsList(
+                        new Common(this).fetchContacts(),
+                        ApplicationConstants.thisUser.UserID);
     }
-
 
 
     @Override
     protected void onPause() {
-     //   MyService.HomeActivity_active=false;
+        //   MyService.HomeActivity_active=false;
         super.onPause();
     }
 
     @Override
     protected void onResume() {
-      //  MyService.HomeActivity_active=true;
+        //  MyService.HomeActivity_active=true;
         super.onResume();
     }
 
@@ -156,11 +162,11 @@ public class HomeActivity extends ActionBarActivity implements ActionBar.TabList
         @Override
         public Fragment getItem(int position) {
 
-            Fragment tab=null;
+            Fragment tab = null;
             switch (position) {
                 case 0:
                     tab = new Tab1();
-                   break;
+                    break;
                 case 1:
                     tab = new Tab2();
                     break;

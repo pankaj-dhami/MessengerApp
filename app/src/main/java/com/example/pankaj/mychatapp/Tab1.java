@@ -23,6 +23,8 @@ import android.widget.TextView;
 import com.example.pankaj.mychatapp.Model.UserModel;
 import com.example.pankaj.mychatapp.Utility.ApplicationConstants;
 import com.example.pankaj.mychatapp.Utility.MyService;
+import com.example.pankaj.mychatapp.Utility.SqlLiteDb;
+import com.example.pankaj.mychatapp.WebApiRequest.HttpManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +38,7 @@ public class Tab1 extends Fragment {
     private ListView listView;
     private static int colorIndex;
     Activity thisActivity;
+    SqlLiteDb entity;
 
     private BroadcastReceiver receiver = new BroadcastReceiver() {
 
@@ -46,6 +49,9 @@ public class Tab1 extends Fragment {
                 String code = bundle.getString("code");
                 if (TextUtils.equals(code, "friendsList")) {
                     userArrayAdapter.clear();
+                    entity.open();
+                    MyService.FriendsList= entity.getFriendsList();
+                    entity.close();
                     for (UserModel model : MyService.FriendsList) {
                         String fruitImg = "orange";
                         int fruitImgResId = getResources().getIdentifier(fruitImg, "drawable", "com.example.pankaj.mychatapp");
@@ -57,6 +63,7 @@ public class Tab1 extends Fragment {
             }
         }
     };
+
 
     @Override
     public void onResume() {
@@ -75,6 +82,7 @@ public class Tab1 extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
+        entity=new SqlLiteDb(thisActivity);
         colorIndex = 0;
         thisActivity = getActivity();
         View v = inflater.inflate(R.layout.tab_1, container, false);
@@ -84,7 +92,9 @@ public class Tab1 extends Fragment {
 
 
         //  View v =inflater.inflate(R.layout.tab_1,container,false);
-
+        entity.open();
+        MyService.FriendsList= entity.getFriendsList();
+        entity.close();
         userArrayAdapter.clear();
         for (UserModel model : MyService.FriendsList) {
             String fruitImg = "orange";
