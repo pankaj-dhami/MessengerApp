@@ -29,6 +29,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.example.pankaj.mychatapp.Model.ChatMsgModel;
 import com.example.pankaj.mychatapp.Model.MsgModel;
 import com.example.pankaj.mychatapp.Model.UserModel;
 import com.example.pankaj.mychatapp.Utility.ApplicationConstants;
@@ -115,12 +116,16 @@ public class ChatBubbleActivity extends ActionBarActivity {
         });
     }
 
+
+
     private boolean sendChatMessage() {
-        chatArrayAdapter.add(new ChatMessage(false, chatText.getText().toString()));
+
         MsgModel msgModel=new MsgModel();
         msgModel.UserModel=thisChatUser;
         msgModel.TextMessage=chatText.getText().toString();
-        new HttpManager(this).sendMessageToUser(msgModel);
+        chatArrayAdapter.add(new ChatMsgModel(false,thisChatUser.UserID,thisChatUser.Name,thisChatUser.MobileNo
+        ,msgModel.TextMessage,msgModel.AttachmentUrl,msgModel.AttachmentData,1,0));
+        HubNotificationService.sendMessageToUser(msgModel);
         chatText.setText("");
         return true;
     }
@@ -160,7 +165,7 @@ public class ChatBubbleActivity extends ActionBarActivity {
 class ChatArrayAdapter extends ArrayAdapter {
 
     private TextView chatText;
-    private List<ChatMessage> chatMessageList = new ArrayList<ChatMessage>();
+    private List<ChatMsgModel> chatMessageList = new ArrayList<ChatMsgModel>();
     private LinearLayout singleMessageContainer;
 
     @Override
@@ -169,7 +174,7 @@ class ChatArrayAdapter extends ArrayAdapter {
         super.clear();
     }
 
-    public void add(ChatMessage object) {
+    public void add(ChatMsgModel object) {
         chatMessageList.add(object);
         super.add(object);
     }
@@ -182,7 +187,7 @@ class ChatArrayAdapter extends ArrayAdapter {
         return this.chatMessageList.size();
     }
 
-    public ChatMessage getItem(int index) {
+    public ChatMsgModel getItem(int index) {
         return this.chatMessageList.get(index);
     }
 
@@ -193,10 +198,11 @@ class ChatArrayAdapter extends ArrayAdapter {
             row = inflater.inflate(R.layout.chat_single_msg, parent, false);
         }
         singleMessageContainer = (LinearLayout) row.findViewById(R.id.singleMessageContainer);
-        ChatMessage chatMessageObj = getItem(position);
+        ChatMsgModel chatMessageObj = getItem(position);
         chatText = (TextView) row.findViewById(R.id.singleMessage);
-        chatText.setText(chatMessageObj.message);
-        chatText.setBackgroundResource(chatMessageObj.left ? R.drawable.bubble_a : R.drawable.bubble_b);
+        chatText.setText(chatMessageObj.TextMessage + "\n"
+        );
+        chatText.setBackgroundResource(chatMessageObj.left ? R.drawable.bubble_b : R.drawable.bubble_a);
         singleMessageContainer.setGravity(chatMessageObj.left ? Gravity.LEFT : Gravity.RIGHT);
         return row;
     }

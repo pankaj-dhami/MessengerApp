@@ -6,9 +6,14 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.example.pankaj.mychatapp.Model.ChatMsgModel;
+import com.example.pankaj.mychatapp.Model.MsgModel;
 import com.example.pankaj.mychatapp.Model.UserModel;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * public static final String
@@ -91,11 +96,104 @@ public class SqlLiteDb {
 
     //endregion
 
+    //region Chat message curd operations
+    private String getDateTime() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(
+                "yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        Date date = new Date();
+        return dateFormat.format(date);
+    }
+
+    public void createChatMsgEntry(ChatMsgModel userModel) {
+        //    UserModel existingUser = getFriend(userModel.UserID);
+        //    if (existingUser == null) {
+        try {
+            ContentValues cv = new ContentValues();
+            cv.put("UserID", userModel.UserID);
+            cv.put("Name", userModel.Name);
+            cv.put("MobileNo", userModel.MobileNo);
+            cv.put("TextMessage", userModel.TextMessage);
+            cv.put("PictureUrl", userModel.PictureUrl);
+            cv.put("PicData", userModel.PicData);
+            cv.put("IsMyMsg", userModel.IsMyMsg);
+            cv.put("IsSendDelv", userModel.IsSendDelv);
+            cv.put("CreatedDate", getDateTime());
+            database.insert(DB_TABLE_CHAT_MSG, null, cv);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        //   }
+    }
+
+    public ArrayList<ChatMsgModel> getChatMsgList(int userID) {
+        ArrayList<ChatMsgModel> lstUserModel = new ArrayList<ChatMsgModel>();
+        try {
+            String[] columns = {ROW_ID, "UserID", "Name", "MobileNo", "TextMessage", "PictureUrl", "PicData", "IsMyMsg", "IsSendDelv", "CreatedDate"};
+            Cursor cr = database.query(DB_TABLE_CHAT_MSG, columns, "UserID = " + userID, null, null, null, null);
+            for (cr.moveToFirst(); !cr.isAfterLast(); cr.moveToNext()) {
+                ChatMsgModel userModel = new ChatMsgModel();
+                userModel._id = cr.getInt(cr.getColumnIndex(ROW_ID));
+                userModel.UserID = cr.getInt(cr.getColumnIndex("UserID"));
+                userModel.Name = cr.getString(cr.getColumnIndex("Name"));
+                userModel.MobileNo = cr.getString(cr.getColumnIndex("MobileNo"));
+                userModel.TextMessage = cr.getString(cr.getColumnIndex("TextMessage"));
+                userModel.PictureUrl = cr.getString(cr.getColumnIndex("PictureUrl"));
+                userModel.PicData = cr.getBlob(cr.getColumnIndex("PicData"));
+                userModel.IsMyMsg = cr.getInt(cr.getColumnIndex("IsMyMsg"));
+                userModel.IsSendDelv = cr.getInt(cr.getColumnIndex("IsSendDelv"));
+                userModel.CreatedDate = cr.getString(cr.getColumnIndex("CreatedDate"));
+                lstUserModel.add(userModel);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return lstUserModel;
+    }
+
+    public ChatMsgModel getChatMsg(int _id) {
+        ChatMsgModel userModel = null;
+        try {
+            String[] columns = {ROW_ID, "UserID", "Name", "MobileNo", "TextMessage", "PictureUrl", "PicData", "IsMyMsg", "IsSendDelv", "CreatedDate"};
+            Cursor cr = database.query(DB_TABLE_CHAT_MSG, columns, ROW_ID + " = " + _id, null, null, null, null);
+            for (cr.moveToFirst(); !cr.isAfterLast(); cr.moveToNext()) {
+                userModel = new ChatMsgModel();
+                userModel._id = cr.getInt(cr.getColumnIndex(ROW_ID));
+                userModel.UserID = cr.getInt(cr.getColumnIndex("UserID"));
+                userModel.Name = cr.getString(cr.getColumnIndex("Name"));
+                userModel.MobileNo = cr.getString(cr.getColumnIndex("MobileNo"));
+                userModel.TextMessage = cr.getString(cr.getColumnIndex("TextMessage"));
+                userModel.PictureUrl = cr.getString(cr.getColumnIndex("PictureUrl"));
+                userModel.PicData = cr.getBlob(cr.getColumnIndex("PicData"));
+                userModel.IsMyMsg = cr.getInt(cr.getColumnIndex("IsMyMsg"));
+                userModel.IsSendDelv = cr.getInt(cr.getColumnIndex("IsSendDelv"));
+                userModel.CreatedDate = cr.getString(cr.getColumnIndex("CreatedDate"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return userModel;
+    }
+
+    public void updateChatMsg(ChatMsgModel chatMsgModel) {
+        ChatMsgModel existingChat = getChatMsg(chatMsgModel._id);
+        if (existingChat != null) {
+            try {
+                ContentValues cv = new ContentValues();
+                cv.put("IsSendDelv", chatMsgModel.IsSendDelv);
+                database.update(DB_TABLE_CHAT_MSG, cv, ROW_ID + " = " + existingChat._id, null);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    //endregion
+
     //region friend curd operations
 
     public void createFriendsEntry(UserModel userModel) {
-    //    UserModel existingUser = getFriend(userModel.UserID);
-    //    if (existingUser == null) {
+        //    UserModel existingUser = getFriend(userModel.UserID);
+        //    if (existingUser == null) {
         try {
             ContentValues cv = new ContentValues();
             cv.put("UserID", userModel.UserID);
@@ -114,7 +212,8 @@ public class SqlLiteDb {
     public ArrayList<UserModel> getFriendsList() {
         ArrayList<UserModel> lstUserModel = new ArrayList<UserModel>();
         try {
-            String[] columns = { "UserID", "Name", "MobileNo", "MyStatus", "PictureUrl", "PicData"};
+            String[] columns = {"UserID", "Name", "MobileNo", "MyStatus", "PictureUrl", "PicData"};
+            //  Cursor cr=database.rawQuery("Select * from "+ DB_TABLE_FRIENDS,null);
             Cursor cr = database.query(DB_TABLE_FRIENDS, columns, null, null, null, null, null);
             for (cr.moveToFirst(); !cr.isAfterLast(); cr.moveToNext()) {
                 UserModel userModel = new UserModel();
@@ -182,6 +281,7 @@ public class SqlLiteDb {
 
     public static final String DB_NAME = "db_messenger_4";
     public static final String DB_TABLE_FRIENDS = "table_friends";
+    public static final String DB_TABLE_CHAT_MSG = "table_chat_messages";
     public static final String DB_TABLE_USER = "table_user";
 
     public static final int DB_VERSION = 1;
@@ -216,12 +316,29 @@ public class SqlLiteDb {
 
             );
 
+            db.execSQL(
+                    "CREATE TABLE " + DB_TABLE_CHAT_MSG + " ("
+                            + ROW_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                            + " UserID  INTEGER  NOT NULL, "
+                            + " Name TEXT NULL ,"
+                            + " MobileNo TEXT NOT NULL ,"
+                            + " TextMessage TEXT  NULL ,"
+                            + " PictureUrl TEXT  NULL ,"
+                            + " PicData BLOB "
+                            + " IsMyMsg INTEGER "
+                            + " IsSendDelv INTEGER "
+                            + " CreatedDate TEXT "
+                            + " );"
+
+            );
+
         }
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             db.execSQL("DROP TABLE IF EXIST " + DB_TABLE_USER);
             db.execSQL("DROP TABLE IF EXIST " + DB_TABLE_FRIENDS);
+            db.execSQL("DROP TABLE IF EXIST " + DB_TABLE_CHAT_MSG);
             onCreate(db);
         }
 

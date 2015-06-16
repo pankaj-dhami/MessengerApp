@@ -59,18 +59,15 @@ public class MyService extends Service {
     public void onCreate() {
         super.onCreate();
         MyService.myService=MyService.this;
-        connectSignalR();
         new AsyncTask<Objects, Objects, Objects>() {
             @Override
             protected Objects doInBackground(Objects... params) {
-           //     MyService.myService.connectSignalR();
+                connectSignalR();
                 return null;
             }
         }.execute(null, null, null);
 
-
     }
-
 
     @Override
     public IBinder onBind(Intent intent) {

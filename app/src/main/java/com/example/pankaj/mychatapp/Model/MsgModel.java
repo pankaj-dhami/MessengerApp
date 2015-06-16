@@ -12,4 +12,6 @@ public  class MsgModel implements Serializable
     public String AttachmentName ;
     public byte[] AttachmentData ;
     public String TextMessage ;
+
 }
+

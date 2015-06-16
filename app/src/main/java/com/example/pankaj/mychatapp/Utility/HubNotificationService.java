@@ -8,12 +8,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.IBinder;
+import android.util.Base64;
 
 import com.example.pankaj.mychatapp.ChatBubbleActivity;
+import com.example.pankaj.mychatapp.Model.AppResultModel;
 import com.example.pankaj.mychatapp.Model.MsgModel;
+import com.example.pankaj.mychatapp.Model.SendMsgModel;
 import com.example.pankaj.mychatapp.Model.UserModel;
 import com.example.pankaj.mychatapp.R;
+import com.example.pankaj.mychatapp.WebApiRequest.APIHandler;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.microsoft.windowsazure.messaging.NotificationHub;
 import com.microsoft.windowsazure.notifications.NotificationsManager;
 
@@ -23,9 +29,15 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Objects;
 
 public class HubNotificationService extends Service {
 
@@ -38,6 +50,7 @@ public class HubNotificationService extends Service {
     private RegisterClient registerClient;
     public static final String BACKEND_ENDPOINT = "http://apitoken.azurewebsites.net";
     public static UserModel thisUser;
+    public  static HubNotificationService thisServiceContext;
     //endregion
 
     //region variables
@@ -50,6 +63,7 @@ public class HubNotificationService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        thisServiceContext=HubNotificationService.this;
         MyHandler.mainActivity = HubNotificationService.this;
         NotificationsManager.handleNotifications(HubNotificationService.this, SENDER_ID, MyHandler.class);
         gcm = GoogleCloudMessaging.getInstance(HubNotificationService.this);
@@ -190,5 +204,134 @@ public class HubNotificationService extends Service {
     public IBinder onBind(Intent intent) {
         // TODO: Return the communication channel to the service.
        return null;
+    }
+
+    public ArrayList<UserModel> updateNewFriendsList(ArrayList<UserModel> arrayContacts, int userID) {
+        JSONArray jsonarr = null;
+        final ArrayList<UserModel> resultList  = new ArrayList<UserModel>();
+        try {
+            final String uri = ApplicationConstants.ServerAddress + "/api/Friends?userID=" + userID;
+            AppResultModel result = new AppResultModel();
+//            if (arrayContacts.size() == 0) {
+//                query = "";
+//            } else {
+            GsonBuilder builder = new GsonBuilder();
+            Gson gson = builder.create();
+            final String query = gson.toJson(arrayContacts);
+            //}
+            new AsyncTask<Objects,Objects,Objects>() {
+                @Override
+                protected Objects doInBackground(Objects... params) {
+                    AppResultModel response = APIHandler.createPost(uri, query, ApplicationConstants.contentTypeJson);
+                    if (response.ResultCode == HttpURLConnection.HTTP_OK)//successful
+                    {
+                        try {
+                            SqlLiteDb entity=new SqlLiteDb(HubNotificationService.this);
+                            entity.open();
+                            JSONArray jsonarr = new JSONArray(response.RawResponse);
+
+                            for (int i = 0; i < jsonarr.length(); i++) {
+                                JSONObject obj = jsonarr.getJSONObject(i);
+                                UserModel user = getUserModel(obj);
+                                resultList.add(user);
+                                entity.createFriendsEntry(user);
+                            }
+                            entity.close();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        MyService.myService.publishFriendsListResults(resultList);
+                    }
+                    return null;
+                }
+            }.execute(null,null,null);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return resultList;
+    }
+
+    public  ArrayList<UserModel> getUpdatedFriendData( int userID) {
+        JSONArray jsonarr = null;
+        final ArrayList<UserModel> resultList  = new ArrayList<UserModel>();
+        try {
+            final String uri = ApplicationConstants.ServerAddress + "/api/Friends?userID=" + userID;
+            AppResultModel result = new AppResultModel();
+
+            new AsyncTask<Objects,Objects,Objects>() {
+                @Override
+                protected Objects doInBackground(Objects... params) {
+                    AppResultModel response = APIHandler.getData(uri);
+                    if (response.ResultCode == HttpURLConnection.HTTP_OK)//successful
+                    {
+                        try {
+                            SqlLiteDb entity=new SqlLiteDb(HubNotificationService.this);
+                            entity.open();
+                            JSONArray jsonarr = new JSONArray(response.RawResponse);
+
+                            for (int i = 0; i < jsonarr.length(); i++) {
+                                JSONObject obj = jsonarr.getJSONObject(i);
+                                UserModel user = getUserModel(obj);
+                                resultList.add(user);
+                                entity.updateFriends(user);
+                            }
+                            entity.close();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        MyService.myService.publishFriendsListResults(resultList);
+                    }
+                    return null;
+                }
+            }.execute(null,null,null);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return resultList;
+    }
+
+    public static UserModel getUserModel(JSONObject obj) throws JSONException {
+        UserModel user = new UserModel();
+        user.Name = obj.getString("Name");
+        user.MobileNo = obj.getString("MobileNo");
+        user.Password = obj.getString("Password");
+        user.UserID = obj.getInt("UserID");
+        user.MyStatus = obj.getString("MyStatus");
+        user.PictureUrl = obj.getString("PictureUrl");
+        user.PicData = Base64.decode(user.PictureUrl, Base64.DEFAULT);
+        return user;
+    }
+
+    public static  void  sendMessageToUser(MsgModel msgModel)
+    {
+        SendMsgModel msg=new SendMsgModel();
+        SqlLiteDb entity=new SqlLiteDb(HubNotificationService.thisServiceContext);
+        entity.open();
+        msg.FromUser= entity.getUser();
+        msg.Message=msgModel;
+        entity.close();
+        GsonBuilder builder = new GsonBuilder();
+        Gson gson = builder.create();
+        final String query = gson.toJson(msg);
+
+        new AsyncTask<Objects,Objects,Objects>() {
+            @Override
+            protected Objects doInBackground(Objects... params) {
+                AppResultModel response = APIHandler.createPost(ApplicationConstants.ServerAddress+"/api/Notifications/SendMessage",
+                        query, ApplicationConstants.contentTypeJson);
+                if (response.ResultCode == HttpURLConnection.HTTP_OK)//successful
+                {
+
+                }
+                return null;
+            }
+        }.execute(null, null, null);
+
+
     }
 }

@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 
 import com.example.pankaj.mychatapp.Utility.ApplicationConstants;
 import com.example.pankaj.mychatapp.Utility.Common;
+import com.example.pankaj.mychatapp.Utility.HubNotificationService;
 import com.example.pankaj.mychatapp.Utility.MyService;
 import com.example.pankaj.mychatapp.WebApiRequest.HttpManager;
 
@@ -86,7 +87,7 @@ public class HomeActivity extends ActionBarActivity implements ActionBar.TabList
                             .setTabListener(this));
         }
         // getUpdatedFriendData
-        HttpManager manager = new HttpManager(this);
+        HubNotificationService manager = HubNotificationService.thisServiceContext;
         manager.getUpdatedFriendData(ApplicationConstants.thisUser.UserID);
         manager.updateNewFriendsList(
                 new Common(this).fetchContacts(),

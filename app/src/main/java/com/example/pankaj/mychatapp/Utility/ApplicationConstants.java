@@ -21,6 +21,8 @@ public class ApplicationConstants  {
     public final static String contentTypeJson = "application/json";
     public final static String contentTypex_www_form = "application/x-www-form";
     public final static String token_fileName="token_fileName.txt";
+    public final static String msgSendToken="?";
+    public final static String msgDeliverToken="??";
 
 
 
