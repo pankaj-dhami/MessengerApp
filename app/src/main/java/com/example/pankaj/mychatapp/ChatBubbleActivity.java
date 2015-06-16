@@ -32,10 +32,11 @@ import android.widget.TextView;
 import com.example.pankaj.mychatapp.Model.ChatMsgModel;
 import com.example.pankaj.mychatapp.Model.MsgModel;
 import com.example.pankaj.mychatapp.Model.UserModel;
+import com.example.pankaj.mychatapp.Utility.AppEnum;
 import com.example.pankaj.mychatapp.Utility.ApplicationConstants;
 import com.example.pankaj.mychatapp.Utility.HubNotificationService;
 import com.example.pankaj.mychatapp.Utility.MyService;
-import com.example.pankaj.mychatapp.WebApiRequest.HttpManager;
+import com.example.pankaj.mychatapp.Utility.SqlLiteDb;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -123,9 +124,17 @@ public class ChatBubbleActivity extends ActionBarActivity {
         MsgModel msgModel=new MsgModel();
         msgModel.UserModel=thisChatUser;
         msgModel.TextMessage=chatText.getText().toString();
-        chatArrayAdapter.add(new ChatMsgModel(false,thisChatUser.UserID,thisChatUser.Name,thisChatUser.MobileNo
-        ,msgModel.TextMessage,msgModel.AttachmentUrl,msgModel.AttachmentData,1,0));
-        HubNotificationService.sendMessageToUser(msgModel);
+        ChatMsgModel chatMsgModel=new ChatMsgModel(false, thisChatUser.UserID, thisChatUser.Name, thisChatUser.MobileNo
+                , msgModel.TextMessage, msgModel.AttachmentUrl, msgModel.AttachmentData
+                , AppEnum.SendDeliver.UNDELIVERED.getValue()
+                , AppEnum.Message.SEND_BY_ME.getValue());
+
+        SqlLiteDb entity=new SqlLiteDb(this);
+        entity.open();
+        chatMsgModel._id= entity.createChatMsgEntry(chatMsgModel);
+        entity.close();
+        chatArrayAdapter.add(chatMsgModel);
+        HubNotificationService.sendMessageToUser(msgModel, chatMsgModel);
         chatText.setText("");
         return true;
     }
@@ -138,9 +147,10 @@ public class ChatBubbleActivity extends ActionBarActivity {
             if (bundle != null) {
                 String code = bundle.getString("code");
                 if (TextUtils.equals(code, "msgModel")) {
-                    MsgModel data = (MsgModel)  ApplicationConstants.msgModel;
-                    if (data.UserModel.UserID == thisChatUser.UserID) {
-                        chatArrayAdapter.add(new ChatMessage(true, data.TextMessage));
+                   ChatMsgModel chatMsgModel = (ChatMsgModel)intent.getParcelableExtra("message");
+                    if (chatMsgModel.UserID == thisChatUser.UserID) {
+                        chatArrayAdapter.add(chatMsgModel);
+
                     }
                 }
             }

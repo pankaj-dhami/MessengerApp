@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 
 import com.example.pankaj.mychatapp.Model.AppResultModel;
+import com.example.pankaj.mychatapp.Model.ChatMsgModel;
 import com.example.pankaj.mychatapp.Model.MsgModel;
 import com.example.pankaj.mychatapp.Model.UserModel;
 import com.example.pankaj.mychatapp.R;
@@ -48,6 +49,8 @@ public class MyHandler extends NotificationsHandler {
                     AppResultModel resultModel = APIHandler.getData(mainActivity.BACKEND_ENDPOINT + "/api/Notifications/GetPendingMsg?userID=" + mainActivity.thisUser.UserID);
                     if (resultModel.ResultCode == HttpURLConnection.HTTP_OK) {
                         try {
+                            SqlLiteDb entity=new SqlLiteDb(HubNotificationService.thisServiceContext);
+                            entity.open();
                             JSONArray arr = new JSONArray(resultModel.RawResponse);
                             for (int i = 0; i < arr.length(); i++) {
                                 JSONObject obj = arr.getJSONObject(i);
@@ -61,9 +64,15 @@ public class MyHandler extends NotificationsHandler {
                                 MsgModel msgModel=new MsgModel();
                                 msgModel.UserModel=user;
                                 msgModel.TextMessage=msg;
-                             //   sendNotification(msg);
-                               mainActivity.publishMessageResults(msgModel);
+                                ChatMsgModel chatMsgModel=new ChatMsgModel(true, user.UserID, user.Name, user.MobileNo
+                                        , msgModel.TextMessage, msgModel.AttachmentUrl, msgModel.AttachmentData
+                                        , AppEnum.SendDeliver.RECEIVED.getValue()
+                                        , AppEnum.Message.SEND_BY_OTHER.getValue());
+                                chatMsgModel._id= entity.createChatMsgEntry(chatMsgModel);
+
+                               mainActivity.publishMessageResults(chatMsgModel);
                             }
+                            entity.close();
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }

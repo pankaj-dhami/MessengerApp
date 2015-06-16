@@ -22,4 +22,7 @@ public class Validations {
         //add your own logic
         return password.equals(conformPassword);
     }
+
+
 }
+

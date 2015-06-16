@@ -2,16 +2,16 @@ package com.example.pankaj.mychatapp.Utility;
 
 import android.app.Notification;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Base64;
 
-import com.example.pankaj.mychatapp.ChatBubbleActivity;
 import com.example.pankaj.mychatapp.Model.AppResultModel;
+import com.example.pankaj.mychatapp.Model.ChatMsgModel;
 import com.example.pankaj.mychatapp.Model.MsgModel;
 import com.example.pankaj.mychatapp.Model.SendMsgModel;
 import com.example.pankaj.mychatapp.Model.UserModel;
@@ -51,6 +51,7 @@ public class HubNotificationService extends Service {
     public static final String BACKEND_ENDPOINT = "http://apitoken.azurewebsites.net";
     public static UserModel thisUser;
     public  static HubNotificationService thisServiceContext;
+    public static ChatMsgModel chatMsgModel;
     //endregion
 
     //region variables
@@ -156,11 +157,14 @@ public class HubNotificationService extends Service {
         //note.number=2;
         mgr.notify(10, note);
     }
-    public void publishMessageResults(MsgModel msgModel) {
+    public void publishMessageResults(ChatMsgModel msgModel) {
         if (ChatBubbleActivity_active) {
             Intent intent = new Intent("com.example.pankaj.mychatapp");
             intent.putExtra("code", "msgModel");
-            ApplicationConstants.msgModel = msgModel;
+            Bundle mbundle=new Bundle();
+            mbundle.putParcelable("message", msgModel);
+            intent.putExtra("ns",mbundle);
+            //ApplicationConstants.msgModel = msgModel;
             sendBroadcast(intent);
         } else {
             /*********** Create notification ***********/
@@ -172,20 +176,20 @@ public class HubNotificationService extends Service {
                     System.currentTimeMillis());
 
             // This pending intent will open after notification click
-            Intent intent = new Intent(this, ChatBubbleActivity.class);
-            ApplicationConstants.chatUser = msgModel.UserModel;
+         //   Intent intent = new Intent(this, ChatBubbleActivity.class);
+         //   ApplicationConstants.chatUser = msgModel.UserModel;
 
-            PendingIntent i = PendingIntent.getActivity(this, 0,
-                    intent,
-                    0);
+         //   PendingIntent i = PendingIntent.getActivity(this, 0,
+         //           intent,
+          //          0);
 
-            note.setLatestEventInfo(this, "New message from " + msgModel.UserModel.Name,
-                    msgModel.TextMessage, i
+            note.setLatestEventInfo(this, "New message from " + msgModel.Name,
+                    msgModel.TextMessage, null
             );
 
             //After uncomment this line you will see number of notification arrived
             //note.number=2;
-            mgr.notify(msgModel.UserModel.UserID, note);
+            mgr.notify(msgModel.UserID, note);
         }
     }
 
@@ -307,7 +311,7 @@ public class HubNotificationService extends Service {
         return user;
     }
 
-    public static  void  sendMessageToUser(MsgModel msgModel)
+    public static  void  sendMessageToUser(MsgModel msgModel,ChatMsgModel chatMsgModel)
     {
         SendMsgModel msg=new SendMsgModel();
         SqlLiteDb entity=new SqlLiteDb(HubNotificationService.thisServiceContext);
@@ -318,15 +322,20 @@ public class HubNotificationService extends Service {
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
         final String query = gson.toJson(msg);
-
+        chatMsgModel.IsSendDelv=AppEnum.SendDeliver.SEND.getValue();
+        final ChatMsgModel finalMsg =chatMsgModel;
         new AsyncTask<Objects,Objects,Objects>() {
             @Override
             protected Objects doInBackground(Objects... params) {
+
                 AppResultModel response = APIHandler.createPost(ApplicationConstants.ServerAddress+"/api/Notifications/SendMessage",
                         query, ApplicationConstants.contentTypeJson);
                 if (response.ResultCode == HttpURLConnection.HTTP_OK)//successful
                 {
-
+                    SqlLiteDb entity=new SqlLiteDb(HubNotificationService.thisServiceContext);
+                    entity.open();
+                    entity.updateChatMsg(finalMsg);
+                    entity.close();
                 }
                 return null;
             }
