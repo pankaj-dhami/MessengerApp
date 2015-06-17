@@ -93,8 +93,8 @@ public class RegisterClient {
     }
 
     private String retrieveRegistrationIdOrRequestNewOne(String handle) throws ClientProtocolException, IOException {
-        if (settings.contains(REGID_SETTING_NAME))
-         return settings.getString(REGID_SETTING_NAME, null);
+      //  if (settings.contains(REGID_SETTING_NAME))
+     //    return settings.getString(REGID_SETTING_NAME, null);
 
         HttpUriRequest request = new HttpPost(Backend_Endpoint+"?handle="+handle);
        // request.addHeader("Authorization", "Basic "+authorizationHeader);
