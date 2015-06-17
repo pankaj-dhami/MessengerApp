@@ -109,6 +109,7 @@ public class SqlLiteDb {
         long id = 0;
         try {
             ContentValues cv = new ContentValues();
+            cv.put("left", userModel.left == true ? 1 : 0);
             cv.put("UserID", userModel.UserID);
             cv.put("Name", userModel.Name);
             cv.put("MobileNo", userModel.MobileNo);
@@ -129,11 +130,12 @@ public class SqlLiteDb {
     public ArrayList<ChatMsgModel> getChatMsgList(int userID) {
         ArrayList<ChatMsgModel> lstUserModel = new ArrayList<ChatMsgModel>();
         try {
-            String[] columns = {ROW_ID, "UserID", "Name", "MobileNo", "TextMessage", "PictureUrl", "PicData", "IsMyMsg", "IsSendDelv", "CreatedDate"};
+            String[] columns = {ROW_ID, "left", "UserID", "Name", "MobileNo", "TextMessage", "PictureUrl", "PicData", "IsMyMsg", "IsSendDelv", "CreatedDate"};
             Cursor cr = database.query(DB_TABLE_CHAT_MSG, columns, "UserID = " + userID, null, null, null, null);
             for (cr.moveToFirst(); !cr.isAfterLast(); cr.moveToNext()) {
                 ChatMsgModel userModel = new ChatMsgModel();
                 userModel._id = cr.getInt(cr.getColumnIndex(ROW_ID));
+                userModel.left = cr.getInt(cr.getColumnIndex("left")) == 1 ? true : false;
                 userModel.UserID = cr.getInt(cr.getColumnIndex("UserID"));
                 userModel.Name = cr.getString(cr.getColumnIndex("Name"));
                 userModel.MobileNo = cr.getString(cr.getColumnIndex("MobileNo"));
@@ -154,11 +156,12 @@ public class SqlLiteDb {
     public ChatMsgModel getChatMsg(long _id) {
         ChatMsgModel userModel = null;
         try {
-            String[] columns = {ROW_ID, "UserID", "Name", "MobileNo", "TextMessage", "PictureUrl", "PicData", "IsMyMsg", "IsSendDelv", "CreatedDate"};
+            String[] columns = {ROW_ID,"left", "UserID", "Name", "MobileNo", "TextMessage", "PictureUrl", "PicData", "IsMyMsg", "IsSendDelv", "CreatedDate"};
             Cursor cr = database.query(DB_TABLE_CHAT_MSG, columns, ROW_ID + " = " + _id, null, null, null, null);
             for (cr.moveToFirst(); !cr.isAfterLast(); cr.moveToNext()) {
                 userModel = new ChatMsgModel();
                 userModel._id = cr.getInt(cr.getColumnIndex(ROW_ID));
+                userModel.left = cr.getInt(cr.getColumnIndex("left")) == 1 ? true : false;
                 userModel.UserID = cr.getInt(cr.getColumnIndex("UserID"));
                 userModel.Name = cr.getString(cr.getColumnIndex("Name"));
                 userModel.MobileNo = cr.getString(cr.getColumnIndex("MobileNo"));
@@ -285,7 +288,7 @@ public class SqlLiteDb {
     public static final String DB_TABLE_CHAT_MSG = "table_chat_messages";
     public static final String DB_TABLE_USER = "table_user";
 
-    public static final int DB_VERSION = 2;
+    public static final int DB_VERSION = 3;
 
     private DBHelper db_helper;
     private Context context;
@@ -320,6 +323,7 @@ public class SqlLiteDb {
             db.execSQL(
                     "CREATE TABLE " + DB_TABLE_CHAT_MSG + " ("
                             + ROW_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                            + " left  INTEGER  NOT NULL, "
                             + " UserID  INTEGER  NOT NULL, "
                             + " Name TEXT NULL ,"
                             + " MobileNo TEXT NOT NULL ,"
@@ -336,9 +340,9 @@ public class SqlLiteDb {
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            db.execSQL("DROP TABLE " + DB_TABLE_USER );
-            db.execSQL("DROP TABLE " + DB_TABLE_FRIENDS );
-         //   db.execSQL("DROP TABLE " + DB_TABLE_CHAT_MSG );
+            db.execSQL("DROP TABLE " + DB_TABLE_USER);
+            db.execSQL("DROP TABLE " + DB_TABLE_FRIENDS);
+             db.execSQL("DROP TABLE " + DB_TABLE_CHAT_MSG );
             onCreate(db);
         }
 

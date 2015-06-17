@@ -1,5 +1,6 @@
 package com.example.pankaj.mychatapp.Utility;
 
+import com.example.pankaj.mychatapp.Model.ChatMsgModel;
 import com.example.pankaj.mychatapp.Model.MsgModel;
 import com.example.pankaj.mychatapp.Model.UserModel;
 
@@ -27,8 +28,7 @@ public class ApplicationConstants  {
 
 
     public static  UserModel thisUser;
-    public static  UserModel chatUser;
-    public static  MsgModel msgModel;
+    public static ChatMsgModel msgModel;
 
 
     public static String getoken_type()

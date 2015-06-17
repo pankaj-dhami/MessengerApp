@@ -50,12 +50,13 @@ public class HubNotificationService extends Service {
     private RegisterClient registerClient;
     public static final String BACKEND_ENDPOINT = "http://apitoken.azurewebsites.net";
     public static UserModel thisUser;
-    public  static HubNotificationService thisServiceContext;
+    public static HubNotificationService thisServiceContext;
     public static ChatMsgModel chatMsgModel;
     //endregion
 
     //region variables
     public static boolean ChatBubbleActivity_active;
+    public static UserModel chatUser;
     //endregion
 
     public HubNotificationService() {
@@ -64,7 +65,7 @@ public class HubNotificationService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        thisServiceContext=HubNotificationService.this;
+        thisServiceContext = HubNotificationService.this;
         MyHandler.mainActivity = HubNotificationService.this;
         NotificationsManager.handleNotifications(HubNotificationService.this, SENDER_ID, MyHandler.class);
         gcm = GoogleCloudMessaging.getInstance(HubNotificationService.this);
@@ -82,14 +83,14 @@ public class HubNotificationService extends Service {
                 try {
 
                     String regid = gcm.register(SENDER_ID);
-                    SqlLiteDb entity=new SqlLiteDb(HubNotificationService.this);
+                    SqlLiteDb entity = new SqlLiteDb(HubNotificationService.this);
                     entity.open();
-                    HubNotificationService.this.thisUser= entity.getUser();
+                    HubNotificationService.this.thisUser = entity.getUser();
                     entity.close();
                     registerClient.register(HubNotificationService.this.thisUser.MobileNo, regid, new HashSet<String>());
-                    sendPush("gcm",HubNotificationService.this.thisUser.MobileNo,"Welcome user");
+                    sendPush("gcm", HubNotificationService.this.thisUser.MobileNo, "Welcome user");
                 } catch (Exception e) {
-                    DialogNotify("Exception",e.getMessage());
+                    DialogNotify("Exception", e.getMessage());
                     return e;
                 }
                 return null;
@@ -97,9 +98,9 @@ public class HubNotificationService extends Service {
         }.execute(null, null, null);
     }
 
-    public static void sendPush(final String pns, final String userTag,  String message)
+    public static void sendPush(final String pns, final String userTag, String message)
             throws ClientProtocolException, IOException {
-        final String nMessage= "\"" + message + "\"";
+        final String nMessage = "\"" + message + "\"";
         new AsyncTask<Object, Object, Object>() {
             @Override
             protected Object doInBackground(Object... params) {
@@ -133,8 +134,7 @@ public class HubNotificationService extends Service {
         }.execute(null, null, null);
     }
 
-    public void DialogNotify(final String title,final String message)
-    {
+    public void DialogNotify(final String title, final String message) {
         final NotificationManager mgr =
                 (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
         Notification note = new Notification(R.drawable.ic_action_microphone,
@@ -150,23 +150,25 @@ public class HubNotificationService extends Service {
         //         0);
 
         note.setLatestEventInfo(this, title,
-                message,null
+                message, null
         );
 
         //After uncomment this line you will see number of notification arrived
         //note.number=2;
         mgr.notify(10, note);
     }
-    public void publishMessageResults(ChatMsgModel msgModel) {
+
+    public void publishMessageResults(ChatMsgModel msgModel, String code, boolean doCreateNotification) {
         if (ChatBubbleActivity_active) {
             Intent intent = new Intent("com.example.pankaj.mychatapp");
-            intent.putExtra("code", "msgModel");
-            Bundle mbundle=new Bundle();
-            mbundle.putParcelable("message", msgModel);
-            intent.putExtra("ns",mbundle);
-            //ApplicationConstants.msgModel = msgModel;
+            intent.putExtra("code", code);
+            GsonBuilder builder = new GsonBuilder();
+            Gson gson = builder.create();
+            String query = gson.toJson(msgModel);
+            // ApplicationConstants.msgModel = msgModel;
+            intent.putExtra("message", query);
             sendBroadcast(intent);
-        } else {
+        } else if (doCreateNotification) {
             /*********** Create notification ***********/
 
             final NotificationManager mgr =
@@ -176,12 +178,12 @@ public class HubNotificationService extends Service {
                     System.currentTimeMillis());
 
             // This pending intent will open after notification click
-         //   Intent intent = new Intent(this, ChatBubbleActivity.class);
-         //   ApplicationConstants.chatUser = msgModel.UserModel;
+            //   Intent intent = new Intent(this, ChatBubbleActivity.class);
+            //   ApplicationConstants.chatUser = msgModel.UserModel;
 
-         //   PendingIntent i = PendingIntent.getActivity(this, 0,
-         //           intent,
-          //          0);
+            //   PendingIntent i = PendingIntent.getActivity(this, 0,
+            //           intent,
+            //          0);
 
             note.setLatestEventInfo(this, "New message from " + msgModel.Name,
                     msgModel.TextMessage, null
@@ -200,19 +202,19 @@ public class HubNotificationService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-      return   START_STICKY;
+        return START_STICKY;
 
     }
 
     @Override
     public IBinder onBind(Intent intent) {
         // TODO: Return the communication channel to the service.
-       return null;
+        return null;
     }
 
     public ArrayList<UserModel> updateNewFriendsList(ArrayList<UserModel> arrayContacts, int userID) {
         JSONArray jsonarr = null;
-        final ArrayList<UserModel> resultList  = new ArrayList<UserModel>();
+        final ArrayList<UserModel> resultList = new ArrayList<UserModel>();
         try {
             final String uri = ApplicationConstants.ServerAddress + "/api/Friends?userID=" + userID;
             AppResultModel result = new AppResultModel();
@@ -223,14 +225,14 @@ public class HubNotificationService extends Service {
             Gson gson = builder.create();
             final String query = gson.toJson(arrayContacts);
             //}
-            new AsyncTask<Objects,Objects,Objects>() {
+            new AsyncTask<Objects, Objects, Objects>() {
                 @Override
                 protected Objects doInBackground(Objects... params) {
                     AppResultModel response = APIHandler.createPost(uri, query, ApplicationConstants.contentTypeJson);
                     if (response.ResultCode == HttpURLConnection.HTTP_OK)//successful
                     {
                         try {
-                            SqlLiteDb entity=new SqlLiteDb(HubNotificationService.this);
+                            SqlLiteDb entity = new SqlLiteDb(HubNotificationService.this);
                             entity.open();
                             JSONArray jsonarr = new JSONArray(response.RawResponse);
 
@@ -249,7 +251,7 @@ public class HubNotificationService extends Service {
                     }
                     return null;
                 }
-            }.execute(null,null,null);
+            }.execute(null, null, null);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -258,21 +260,21 @@ public class HubNotificationService extends Service {
         return resultList;
     }
 
-    public  ArrayList<UserModel> getUpdatedFriendData( int userID) {
+    public ArrayList<UserModel> getUpdatedFriendData(int userID) {
         JSONArray jsonarr = null;
-        final ArrayList<UserModel> resultList  = new ArrayList<UserModel>();
+        final ArrayList<UserModel> resultList = new ArrayList<UserModel>();
         try {
             final String uri = ApplicationConstants.ServerAddress + "/api/Friends?userID=" + userID;
             AppResultModel result = new AppResultModel();
 
-            new AsyncTask<Objects,Objects,Objects>() {
+            new AsyncTask<Objects, Objects, Objects>() {
                 @Override
                 protected Objects doInBackground(Objects... params) {
                     AppResultModel response = APIHandler.getData(uri);
                     if (response.ResultCode == HttpURLConnection.HTTP_OK)//successful
                     {
                         try {
-                            SqlLiteDb entity=new SqlLiteDb(HubNotificationService.this);
+                            SqlLiteDb entity = new SqlLiteDb(HubNotificationService.this);
                             entity.open();
                             JSONArray jsonarr = new JSONArray(response.RawResponse);
 
@@ -290,7 +292,7 @@ public class HubNotificationService extends Service {
                     }
                     return null;
                 }
-            }.execute(null,null,null);
+            }.execute(null, null, null);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -311,36 +313,77 @@ public class HubNotificationService extends Service {
         return user;
     }
 
-    public static  void  sendMessageToUser(MsgModel msgModel,ChatMsgModel chatMsgModel)
-    {
-        SendMsgModel msg=new SendMsgModel();
-        SqlLiteDb entity=new SqlLiteDb(HubNotificationService.thisServiceContext);
+    public static ChatMsgModel getChatModel(JSONObject obj) throws JSONException {
+        ChatMsgModel user = new ChatMsgModel();
+        user._id = obj.getInt("_id");
+        user.UserID = obj.getInt("UserID");
+        user.Name = obj.getString("Name");
+        user.MobileNo = obj.getString("MobileNo");
+        user.TextMessage = obj.getString("TextMessage");
+        user.IsMyMsg = obj.getInt("IsMyMsg");
+        user.IsSendDelv = obj.getInt("IsSendDelv");
+        if (obj.has("PictureUrl")) {
+            user.PictureUrl = obj.getString("PictureUrl");
+            user.PicData = Base64.decode(user.PictureUrl, Base64.DEFAULT);
+        }
+        user.left = obj.getBoolean("left");
+        return user;
+    }
+
+    public void sendMessageToUser(MsgModel msgModel, ChatMsgModel chatMsgModel) {
+        Thread thread = new Thread(new SendMessageThread(msgModel, chatMsgModel));
+        thread.start();
+    }
+}
+
+class SendMessageThread implements Runnable {
+    SendMsgModel msg = new SendMsgModel();
+    ChatMsgModel chatMsgModel;
+
+    public SendMessageThread(MsgModel msgModel, ChatMsgModel chatMsgModel) {
+        SqlLiteDb entity = new SqlLiteDb(HubNotificationService.thisServiceContext);
         entity.open();
-        msg.FromUser= entity.getUser();
-        msg.Message=msgModel;
+        msg.FromUser = entity.getUser();
+        msg.Message = msgModel;
         entity.close();
-        GsonBuilder builder = new GsonBuilder();
-        Gson gson = builder.create();
-        final String query = gson.toJson(msg);
-        chatMsgModel.IsSendDelv=AppEnum.SendDeliver.SEND.getValue();
-        final ChatMsgModel finalMsg =chatMsgModel;
-        new AsyncTask<Objects,Objects,Objects>() {
+        this.chatMsgModel = chatMsgModel;
+
+    }
+
+    @Override
+    public void run() {
+        new AsyncTask<Objects, Objects, Objects>() {
             @Override
             protected Objects doInBackground(Objects... params) {
 
-                AppResultModel response = APIHandler.createPost(ApplicationConstants.ServerAddress+"/api/Notifications/SendMessage",
-                        query, ApplicationConstants.contentTypeJson);
-                if (response.ResultCode == HttpURLConnection.HTTP_OK)//successful
-                {
-                    SqlLiteDb entity=new SqlLiteDb(HubNotificationService.thisServiceContext);
-                    entity.open();
-                    entity.updateChatMsg(finalMsg);
-                    entity.close();
+                GsonBuilder builder = new GsonBuilder();
+                Gson gson = builder.create();
+                final String query = gson.toJson(msg);
+                ChatMsgModel finalMsg = chatMsgModel;
+                int n = 0;
+                int resultCode = 0;
+                while (n < 2) {
+                    AppResultModel response = APIHandler.createPost(ApplicationConstants.ServerAddress + "/api/Notifications/SendMessage",
+                            query, ApplicationConstants.contentTypeJson);
+                    resultCode = response.ResultCode;
+                    if (response.ResultCode == HttpURLConnection.HTTP_OK)//successful
+                    {
+                        finalMsg.IsSendDelv = AppEnum.SEND;
+                        SqlLiteDb entity = new SqlLiteDb(HubNotificationService.thisServiceContext);
+                        entity.open();
+                        entity.updateChatMsg(finalMsg);
+                        entity.close();
+                        HubNotificationService.thisServiceContext.publishMessageResults(finalMsg, AppEnum.MsgSendNotify, false);
+                        break;
+                    }
+                    n++;
+                }
+                if (n == 2 && resultCode != 200) {
+                    finalMsg.IsSendDelv = AppEnum.UNDELIVERED;
+                    HubNotificationService.thisServiceContext.publishMessageResults(finalMsg, AppEnum.MsgSendNotify, false);
                 }
                 return null;
             }
         }.execute(null, null, null);
-
-
     }
 }

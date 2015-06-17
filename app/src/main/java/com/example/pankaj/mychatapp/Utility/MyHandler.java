@@ -45,36 +45,38 @@ public class MyHandler extends NotificationsHandler {
 
                 @Override
                 protected Object doInBackground(Object... params) {
+                    int responseCode=0;
+                    while (responseCode!=200) {
+                        AppResultModel resultModel = APIHandler.getData(mainActivity.BACKEND_ENDPOINT + "/api/Notifications/GetPendingMsg?userID=" + mainActivity.thisUser.UserID);
+                        if (resultModel.ResultCode == HttpURLConnection.HTTP_OK) {
+                            try {
+                                responseCode=resultModel.ResultCode;
+                                SqlLiteDb entity=new SqlLiteDb(HubNotificationService.thisServiceContext);
+                                entity.open();
+                                JSONArray arr = new JSONArray(resultModel.RawResponse);
+                                for (int i = 0; i < arr.length(); i++) {
+                                    JSONObject obj = arr.getJSONObject(i);
+                                    String msg= obj.getString("TextMessage");
+                                    JSONObject fromUser=obj.getJSONObject("UserModel");
+                                    UserModel user =new UserModel();
+                                    user.Name=fromUser.getString("Name");
+                                    user.MobileNo=fromUser.getString("MobileNo");
+                                  //  user.Password=fromUser.getString("Password");
+                                    user.UserID=fromUser.getInt("UserID");
+                                    MsgModel msgModel=new MsgModel();
+                                    msgModel.UserModel=user;
+                                    msgModel.TextMessage=msg;
+                                    ChatMsgModel chatMsgModel=new ChatMsgModel(true,0, user.UserID, user.Name, user.MobileNo
+                                            , msgModel.TextMessage, msgModel.AttachmentUrl, msgModel.AttachmentData
+                                            , AppEnum.SEND_BY_OTHER  , AppEnum.RECEIVED);
+                                    chatMsgModel._id= entity.createChatMsgEntry(chatMsgModel);
 
-                    AppResultModel resultModel = APIHandler.getData(mainActivity.BACKEND_ENDPOINT + "/api/Notifications/GetPendingMsg?userID=" + mainActivity.thisUser.UserID);
-                    if (resultModel.ResultCode == HttpURLConnection.HTTP_OK) {
-                        try {
-                            SqlLiteDb entity=new SqlLiteDb(HubNotificationService.thisServiceContext);
-                            entity.open();
-                            JSONArray arr = new JSONArray(resultModel.RawResponse);
-                            for (int i = 0; i < arr.length(); i++) {
-                                JSONObject obj = arr.getJSONObject(i);
-                                String msg= obj.getString("TextMessage");
-                                JSONObject fromUser=obj.getJSONObject("UserModel");
-                                UserModel user =new UserModel();
-                                user.Name=fromUser.getString("Name");
-                                user.MobileNo=fromUser.getString("MobileNo");
-                              //  user.Password=fromUser.getString("Password");
-                                user.UserID=fromUser.getInt("UserID");
-                                MsgModel msgModel=new MsgModel();
-                                msgModel.UserModel=user;
-                                msgModel.TextMessage=msg;
-                                ChatMsgModel chatMsgModel=new ChatMsgModel(true, user.UserID, user.Name, user.MobileNo
-                                        , msgModel.TextMessage, msgModel.AttachmentUrl, msgModel.AttachmentData
-                                        , AppEnum.SendDeliver.RECEIVED.getValue()
-                                        , AppEnum.Message.SEND_BY_OTHER.getValue());
-                                chatMsgModel._id= entity.createChatMsgEntry(chatMsgModel);
-
-                               mainActivity.publishMessageResults(chatMsgModel);
+                                   mainActivity.publishMessageResults(chatMsgModel,AppEnum.MsgReceivedNotify,true);
+                                }
+                                entity.close();
+                            } catch (JSONException e) {
+                                e.printStackTrace();
                             }
-                            entity.close();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
                         }
                     }
                     return null;

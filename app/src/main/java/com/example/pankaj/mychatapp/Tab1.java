@@ -22,6 +22,7 @@ import android.widget.TextView;
 
 import com.example.pankaj.mychatapp.Model.UserModel;
 import com.example.pankaj.mychatapp.Utility.ApplicationConstants;
+import com.example.pankaj.mychatapp.Utility.HubNotificationService;
 import com.example.pankaj.mychatapp.Utility.MyService;
 import com.example.pankaj.mychatapp.Utility.SqlLiteDb;
 
@@ -174,7 +175,7 @@ public class Tab1 extends Fragment {
 
         //   intent.putExtra("userID",selectedModel.UserID);
         //  intent.putExtra("mobile",selectedModel.MobileNo);
-        ApplicationConstants.chatUser = selectedModel;
+        HubNotificationService.chatUser = selectedModel;
         startActivity(intent);
         //  startActivity(new Intent("com.example.pankaj.mychatapp.ChatBubbleActivity"));
     }

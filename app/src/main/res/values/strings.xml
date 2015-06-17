@@ -33,6 +33,7 @@
     <string name="passwordHint">Password</string>
     <string name="loginButton">1. Log in</string>
     <string name="send_button">2. Send Notification</string>
+    <string name="tickMark">#8226</string>
 <string name="notification_message_tag_hint">
     Recipient username tag
 </string>

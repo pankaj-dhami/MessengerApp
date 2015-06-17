@@ -20,7 +20,8 @@ public class ChatMsgModel implements Parcelable {
     public String CreatedDate;
     public boolean left;
 
-    public ChatMsgModel(boolean left, int userID, String name, String mobileNo, String textMessage, String pictureUrl, byte[] picData, int isMyMsg, int isSendDelv) {
+    public ChatMsgModel(boolean left,long _id, int userID, String name, String mobileNo, String textMessage, String pictureUrl, byte[] picData, int isMyMsg, int isSendDelv) {
+        this. _id=_id;
         UserID = userID;
         Name = name;
         MobileNo = mobileNo;

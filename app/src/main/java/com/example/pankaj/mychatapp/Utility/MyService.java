@@ -84,39 +84,6 @@ public class MyService extends Service {
         }
     }
 
-    public void publishMessageResults(MsgModel msgModel) {
-        if (ChatBubbleActivity_active) {
-            Intent intent = new Intent("com.example.pankaj.mychatapp");
-            intent.putExtra("code", "msgModel");
-            ApplicationConstants.msgModel = msgModel;
-            sendBroadcast(intent);
-        } else {
-            /*********** Create notification ***********/
-
-            final NotificationManager mgr =
-                    (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
-            Notification note = new Notification(R.drawable.ic_action_microphone,
-                    "Android Example Status message!",
-                    System.currentTimeMillis());
-
-            // This pending intent will open after notification click
-            Intent intent = new Intent(this, ChatBubbleActivity.class);
-            ApplicationConstants.chatUser = msgModel.UserModel;
-
-            PendingIntent i = PendingIntent.getActivity(this, 0,
-                    intent,
-                    0);
-
-            note.setLatestEventInfo(this, "New message from " + msgModel.UserModel.Name,
-                    msgModel.TextMessage, i
-            );
-
-            //After uncomment this line you will see number of notification arrived
-            //note.number=2;
-            mgr.notify(msgModel.UserModel.UserID, note);
-        }
-    }
-
     public void connectSignalR() {
         Platform.loadPlatformComponent(new AndroidPlatformComponent());
 
@@ -189,7 +156,7 @@ public class MyService extends Service {
         proxy.on("getMessages", new SubscriptionHandler1<MsgModel>() {
             @Override
             public void run(MsgModel msgModel) {
-                publishMessageResults(msgModel);
+               // publishMessageResults(msgModel);
                 //    Toast.makeText(MyService.this, "onConnected ", Toast.LENGTH_LONG);
             }
         }, MsgModel.class);
