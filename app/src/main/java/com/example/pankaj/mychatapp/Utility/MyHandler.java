@@ -70,7 +70,7 @@ public class MyHandler extends NotificationsHandler {
                                             , msgModel.TextMessage, msgModel.AttachmentUrl, msgModel.AttachmentData
                                             , AppEnum.SEND_BY_OTHER  , AppEnum.RECEIVED);
                                     chatMsgModel._id= entity.createChatMsgEntry(chatMsgModel);
-
+                                    chatMsgModel.CreatedDate = Common.getDateTime();
                                    mainActivity.publishMessageResults(chatMsgModel,AppEnum.MsgReceivedNotify,true);
                                 }
                                 entity.close();

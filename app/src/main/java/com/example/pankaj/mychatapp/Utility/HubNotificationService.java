@@ -324,7 +324,10 @@ public class HubNotificationService extends Service {
         user.IsSendDelv = obj.getInt("IsSendDelv");
         if (obj.has("PictureUrl")) {
             user.PictureUrl = obj.getString("PictureUrl");
-            user.PicData = Base64.decode(user.PictureUrl, Base64.DEFAULT);
+        }
+        if (obj.has("CreatedDate"))
+        {
+            user.CreatedDate = obj.getString("CreatedDate");
         }
         user.left = obj.getBoolean("left");
         return user;
@@ -369,19 +372,19 @@ class SendMessageThread implements Runnable {
                     if (response.ResultCode == HttpURLConnection.HTTP_OK)//successful
                     {
                         finalMsg.IsSendDelv = AppEnum.SEND;
-                        SqlLiteDb entity = new SqlLiteDb(HubNotificationService.thisServiceContext);
-                        entity.open();
-                        entity.updateChatMsg(finalMsg);
-                        entity.close();
-                        HubNotificationService.thisServiceContext.publishMessageResults(finalMsg, AppEnum.MsgSendNotify, false);
-                        break;
+                       break;
                     }
                     n++;
                 }
                 if (n == 2 && resultCode != 200) {
                     finalMsg.IsSendDelv = AppEnum.UNDELIVERED;
-                    HubNotificationService.thisServiceContext.publishMessageResults(finalMsg, AppEnum.MsgSendNotify, false);
                 }
+                SqlLiteDb entity = new SqlLiteDb(HubNotificationService.thisServiceContext);
+                entity.open();
+                entity.updateChatMsg(finalMsg);
+                entity.close();
+                HubNotificationService.thisServiceContext.publishMessageResults(finalMsg, AppEnum.MsgSendNotify, false);
+
                 return null;
             }
         }.execute(null, null, null);

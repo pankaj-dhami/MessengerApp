@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -88,70 +89,20 @@ public class Tab1 extends Fragment {
         listView = (ListView) v.findViewById(R.id.listView);
         userArrayAdapter = new UserModelAdapter(getActivity(), R.layout.list_row);
         listView.setAdapter(userArrayAdapter);
-
-
-        //  View v =inflater.inflate(R.layout.tab_1,container,false);
         entity=new SqlLiteDb(thisActivity);
         entity.open();
         MyService.FriendsList= entity.getFriendsList();
         entity.close();
         userArrayAdapter.clear();
         for (UserModel model : MyService.FriendsList) {
-            String fruitImg = "orange";
-            int fruitImgResId = getResources().getIdentifier(fruitImg, "drawable", "com.example.pankaj.mychatapp");
+          //  String fruitImg = "orange";
+          //  int fruitImgResId = getResources().getIdentifier(fruitImg, "drawable", "com.example.pankaj.mychatapp");
             model.MyStatus = model.MobileNo +"/"+ model.UserID;
-            model.PicImg = fruitImgResId;
+            StringBuilder sb=new StringBuilder("iVBORw0KGgoAAAANSUhEUgAAAHgAAAB4CAMAAAAOusbgAAAAkFBMVEX///+kxjmkxjr8/febwSO+1ny61HKRugCcwiHT5KGbwSewzVnY5bG10V74+/Hc6beyzmCgxDH8/fWty0/q8tTu9NqSuwCVvRP0+Of3+u2GtADp8dTl7sq10GmbwC/x9uHL3ZTI3YyhxD/Z56zB14Tj7cCsy0zK3Je30WTG2o/F24TR4qXi7sd8rQCVvECry0SSP5/vAAAEVUlEQVRoge2b63aqOhRGIQShAYUAEkRRRKW29mzf/+12wk2wpiiJdYx9+P60CWkmK5fFyqWKMoqjeXBfOceTDM7+zO8p9vbfSTL4M9a1/lLzNVpJBi+y8I4qt/FWMldRdobfWyZYhzPp4MiKv3qKaHqcSufS8UryHnO+4lz2mGbSEqMesVo0X60Otm07h1WwWdQlgOE8gUt7MPY39If3ddq7GUZmIQT8JLWLSe7EyaKnioGaxicl2FprE2IqtRD9BUEIkp2n+U8ymLYwRlZoYBUAtSOahgb2jc9ncZ0cwW/Umk0N1zdP4c51gm9TKzRA2fsd3u1R2YBay8VWHU6sSDJWOxq4D8ushsSWyo1co9fcEo3Ju0TuxoI/9O41eS+N6+XwTiwjq0YqC2yWXMC8Bf8NmE8py0kiexNScaHlcskA5UlWjnugIiku7EQqVnjaREvzNhlAfb4IEli9BJDgSpaVkQBOWdIht9s5Z9+HAJQeHBBLmDuzEKgqe2PpBcI3DZ4UD93qIYiFYz47bOo+sjTPYp9ZvMxqMM5EXRhGTZ+S3UJbcUYXQPpGCybo0gSCfsQ2Gg4d1T5/VKsoc0FrumNfaHxpFmqB6KePQ60etl9KzGkfUNfAHx1Y5yFArkik+/6Ar7xuAFOgraPk1ty5k1xOv2EKVAEwFHAiX1AAjNFw8MkczKUKB/sQbT94bDGTw761FldegljwOFTG4Jk88wkUUDx4WHv7ZCIgd3g4oHmeNlj0bx9BOUcVnfWgBg/nUnLVbo6l4vPnz3s30SQkCCFCPtjbeh8TXUDJgVW5dEOIECTop9AgcgkbxnTyGx80OcvFBldK69jkpJwZZZWcdt6TKm4HgDhF2CMynUI2qv06VKTxNnfbaB42n3mA6fJrZiERB2JQ8CG+BBJ8570lLQ5ayQDrrSrBmrcteWx7SNORAT62agCQN7GnHbAtAay57RpeBuaubEbwCB7BI3gEj+ARPIJH8AgewSN4BDfiLtpetkx9+sKctxfxsq2IG5svouD7Nl++bTdJAF+2m0jK5dYbbJCYqSYJrMwTQno32GhrH45nnH8ui4QUsKI5UxWft3ddB6skBzxAI/jXwF4idBgy/ExC7PgHDz/+UYL1i07alG14HsrF4SMz91raJMT1XvlVxeBmdlMYcb+Bd5L3yESFcPt8GABUq3OEDnCVS/zBx2y1Vqmb+1R517Iij6nbF6Ao6k92Ei6CaLNCqwy3DDOr3NnMaY18AI9lvsxbkkvQBdf5dgc8lUisFHTBjU2/ClZfBX6Zxf8/8NjH/z547ON/H/yrfXz1WWzyr77H8sGRi1tr7LzJD3DrhUQuj3H11tpVCHdN9uIS9dOI6xm36KOsXtDQkLl1EfBA6jAQhDIvdV80j2EZu5Lu9YY0xtU9qkT+v+AU2liQxrommVw16C4jkK350+dgFXZf6F3X0++RerT70Pdvsv/F6orNiVwfukP1Sv0Fz/tveV13LiUAAAAASUVORK5CYII=");
+            byte[] decodedString = Base64.decode(sb.toString(), Base64.DEFAULT);
+            model.PicData = decodedString;
             userArrayAdapter.add(model);
         }
-       /* listView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(thisActivity, "Stop Clicking me", Toast.LENGTH_SHORT).show();
-
-            }
-        });*/
-       /* listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-            @Override
-            public void onItemClick(AdapterView<?> parent, final View view,
-                                    int position, long id) {
-                // showText();
-              *//*  final UserModel item = (UserModel) parent.getItemAtPosition(position);
-                view.animate().setDuration(2000).alpha(0)
-                        .withEndAction(new Runnable() {
-                            @Override
-                            public void run() {
-                                // textView.setText("Selected: "+ item);
-
-                                //to remove item from list
-                                //list.remove(item);
-                                //adapter.notifyDataSetChanged();
-                               // Toast.makeText(HomeActivity.this, "You Clicked at " + item.Name, Toast.LENGTH_SHORT).show();
-                                startActivity(new Intent("com.example.pankaj.mychatapp.ChatBubbleActivity"));
-                                view.setAlpha(1);
-                            }
-                        });*//*
-                Toast.makeText(thisActivity, "Stop Clicking me", Toast.LENGTH_SHORT).show();
-            }
-
-        });*/
-
-      /*  editText.setOnKeyListener(new View.OnKeyListener() {
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    return addItem();
-                }
-                return false;
-            }
-        });
-
-        addButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View arg0) {
-                addItem();
-            }
-        });*/
-        //  Toast.makeText(this, "You Clicked at " + userModelList.get(position).Name, Toast.LENGTH_SHORT).show();
         return v;
     }
 
@@ -180,79 +131,6 @@ public class Tab1 extends Fragment {
         //  startActivity(new Intent("com.example.pankaj.mychatapp.ChatBubbleActivity"));
     }
 
-    public List<String[]> readData() {
-        List<String[]> resultList = new ArrayList<String[]>();
-
-        String[] fruit7 = new String[3];
-        fruit7[0] = "orange";
-        fruit7[1] = "Orange";
-        fruit7[2] = "47 Calories";
-        resultList.add(fruit7);
-
-        String[] fruit1 = new String[3];
-        fruit1[0] = "cherry";
-        fruit1[1] = "Cherry";
-        fruit1[2] = "50 Calories";
-        resultList.add(fruit1);
-
-
-        String[] fruit3 = new String[3];
-        fruit3[0] = "banana";
-        fruit3[1] = "Banana";
-        fruit3[2] = "89 Calories";
-        resultList.add(fruit3);
-
-        String[] fruit4 = new String[3];
-        fruit4[0] = "apple";
-        fruit4[1] = "Apple";
-        fruit4[2] = "52 Calories";
-        resultList.add(fruit4);
-
-        String[] fruit10 = new String[3];
-        fruit10[0] = "kiwi";
-        fruit10[1] = "Kiwi";
-        fruit10[2] = "61 Calories";
-        resultList.add(fruit10);
-
-        String[] fruit5 = new String[3];
-        fruit5[0] = "pear";
-        fruit5[1] = "Pear";
-        fruit5[2] = "57 Calories";
-        resultList.add(fruit5);
-
-
-        String[] fruit2 = new String[3];
-        fruit2[0] = "strawberry";
-        fruit2[1] = "Strawberry";
-        fruit2[2] = "33 Calories";
-        resultList.add(fruit2);
-
-        String[] fruit6 = new String[3];
-        fruit6[0] = "lemon";
-        fruit6[1] = "Lemon";
-        fruit6[2] = "29 Calories";
-        resultList.add(fruit6);
-
-        String[] fruit8 = new String[3];
-        fruit8[0] = "peach";
-        fruit8[1] = "Peach";
-        fruit8[2] = "39 Calories";
-        resultList.add(fruit8);
-
-        String[] fruit9 = new String[3];
-        fruit9[0] = "apricot";
-        fruit9[1] = "Apricot";
-        fruit9[2] = "48 Calories";
-        resultList.add(fruit9);
-
-        String[] fruit11 = new String[3];
-        fruit11[0] = "mango";
-        fruit11[1] = "Mango";
-        fruit11[2] = "60 Calories";
-        resultList.add(fruit11);
-
-        return resultList;
-    }
 }
 
 
@@ -313,7 +191,9 @@ class UserModelAdapter extends ArrayAdapter<UserModel> {
             viewHolder = (UserViewHolder) row.getTag();
         }
         UserModel user = getItem(position);
-        viewHolder.friendImage.setImageResource(user.PicImg);
+        if (user.PicData!=null) {
+            viewHolder.friendImage.setImageBitmap(BitmapFactory.decodeByteArray(user.PicData, 0, user.PicData.length));
+        }
         viewHolder.friendName.setText(user.Name);
         viewHolder.friendText.setText(user.MyStatus);
         return row;

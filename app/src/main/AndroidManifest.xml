@@ -58,12 +58,14 @@
         </activity>
         <activity
             android:name=".HomeActivity"
-            android:label="@string/title_activity_home"
+            android:label="ChatteR.."
             android:theme="@style/Theme.Dark" >
         </activity>
         <activity
             android:name=".ChatBubbleActivity"
-            android:label="ChatBubbleActivity" >
+            android:theme="@style/Theme.Dark"
+            android:parentActivityName="com.example.pankaj.mychatapp.HomeActivity"
+            >
         </activity>
 
         <service android:name=".Utility.MyService" />

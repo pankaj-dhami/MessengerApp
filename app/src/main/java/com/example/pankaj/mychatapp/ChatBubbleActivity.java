@@ -15,25 +15,33 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.text.TextUtils;
+import android.view.ActionMode;
+import android.view.ContextMenu;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnKeyListener;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.pankaj.mychatapp.Model.ChatMsgModel;
 import com.example.pankaj.mychatapp.Model.MsgModel;
 import com.example.pankaj.mychatapp.Model.UserModel;
 import com.example.pankaj.mychatapp.Utility.AppEnum;
 import com.example.pankaj.mychatapp.Utility.ApplicationConstants;
+import com.example.pankaj.mychatapp.Utility.Common;
 import com.example.pankaj.mychatapp.Utility.HubNotificationService;
 import com.example.pankaj.mychatapp.Utility.MyService;
 import com.example.pankaj.mychatapp.Utility.SqlLiteDb;
@@ -44,7 +52,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ChatBubbleActivity extends ActionBarActivity {
+public class ChatBubbleActivity extends ActionBarActivity implements ActionMode.Callback  {
     private static final String TAG = "ChatActivity";
 
     private ChatArrayAdapter chatArrayAdapter;
@@ -57,23 +65,18 @@ public class ChatBubbleActivity extends ActionBarActivity {
     Intent intent;
     private boolean side = false;
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        HubNotificationService.ChatBubbleActivity_active = true;
-    }
+    ArrayList<ChatMsgModel> selectedItems = new ArrayList<ChatMsgModel>();
+    boolean toggleSelection;
+    protected ActionMode mActionMode;
 
-    @Override
-    public void onStop() {
-        super.onStop();
-        HubNotificationService.ChatBubbleActivity_active = false;
-    }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Intent myIntent = getIntent();
         thisChatUser = HubNotificationService.chatUser;
+        setTitle(thisChatUser.Name);
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(thisChatUser.UserID);
 
@@ -120,9 +123,44 @@ public class ChatBubbleActivity extends ActionBarActivity {
         entity.close();
         for (ChatMsgModel msg : msgList)
             chatArrayAdapter.add(msg);
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                toggleSelection = true;
+                ChatMsgModel item = getSelectedItem(chatArrayAdapter.getItem(position)._id);
+                if (item != null && selectedItems.contains(item)) {
+                    chatArrayAdapter.getItem(position).isChecked = false;
+                    selectedItems.remove(item);
+                    getSupportActionBar().show();
+                    view.setSelected(false);
+                    mActionMode.finish();
+                } else {
+                    chatArrayAdapter.getItem(position).isChecked = true;
+                    selectedItems.add(chatArrayAdapter.getItem(position));
+                    mActionMode = ChatBubbleActivity.this.startActionMode(ChatBubbleActivity.this);
+                    view.setSelected(true);
+                    getSupportActionBar().hide();
+                }
+                if (selectedItems.isEmpty())
+                    toggleSelection = false;
+                return true;
+            }
+        });
+        //  registerForContextMenu(listView);
+
+
     }
 
+    public ChatMsgModel getSelectedItem(long _id) {
+        for (ChatMsgModel item : selectedItems) {
+            if (item._id == _id)
+                return item;
+        }
 
+        return null;
+    }
+
+    //region send receive methods
     private boolean sendChatMessage() {
 
         MsgModel msgModel = new MsgModel();
@@ -131,7 +169,7 @@ public class ChatBubbleActivity extends ActionBarActivity {
         ChatMsgModel chatMsgModel = new ChatMsgModel(false, 0, thisChatUser.UserID, thisChatUser.Name, thisChatUser.MobileNo
                 , msgModel.TextMessage, msgModel.AttachmentUrl, msgModel.AttachmentData
                 , AppEnum.SEND_BY_ME, AppEnum.Trying_SEND);
-
+        chatMsgModel.CreatedDate = Common.getDateTime();
         SqlLiteDb entity = new SqlLiteDb(this);
         entity.open();
         chatMsgModel._id = entity.createChatMsgEntry(chatMsgModel);
@@ -177,115 +215,93 @@ public class ChatBubbleActivity extends ActionBarActivity {
             }
         }
     };
+    //endregion
+
+
+    //region show menu on long select code
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        if (v.getId() == R.id.listViewChat) {
+            AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
+            menu.setHeaderTitle(chatArrayAdapter.getItem(info.position).TextMessage);
+            String[] menuItems = getResources().getStringArray(R.array.menu_demo);
+            for (int i = 0; i < menuItems.length; i++) {
+                menu.add(Menu.NONE, i, i, menuItems[i]);
+            }
+        }
+    }
 
     @Override
-    public void onResume() {
-        MyService.ChatBubbleActivity_active = true;
-        super.onResume();
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        int menuItemIndex = item.getItemId();
+        String[] menuItems = getResources().getStringArray(R.array.menu_demo);
+        String menuItemName = menuItems[menuItemIndex];
+        String listItemName = chatArrayAdapter.getItem(info.position).TextMessage;
+
+        Toast.makeText(ChatBubbleActivity.this, String.format("Selected %s for item %s", menuItemName, listItemName), Toast.LENGTH_LONG).show();
+        //  TextView text = (TextView)findViewById(R.id.footer);
+        //  text.setText(String.format("Selected %s for item %s", menuItemName, listItemName));
+        return true;
+    }
+    //endregion
+
+    //region on start and stop override
+    @Override
+    public void onStart() {
+        super.onStart();
+        HubNotificationService.ChatBubbleActivity_active = true;
         registerReceiver(receiver, new IntentFilter("com.example.pankaj.mychatapp"));
     }
 
     @Override
-    public void onPause() {
-        MyService.ChatBubbleActivity_active = false;
-        super.onPause();
+    public void onStop() {
+        super.onStop();
+        HubNotificationService.ChatBubbleActivity_active = false;
         unregisterReceiver(receiver);
     }
-}
+    //endregion
 
-class ChatArrayAdapter extends ArrayAdapter {
 
-    private TextView chatText;
-    private List<ChatMsgModel> chatMessageList = new ArrayList<ChatMsgModel>();
-    private LinearLayout singleMessageContainer;
+    //region startActionMode methods
+    @Override
+    // Called when the action mode is created; startActionMode() was called
+    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+        // Inflate a menu resource providing context menu items
+        MenuInflater inflater = mode.getMenuInflater();
+        // Assumes that you have "contexual.xml" menu resources
+        inflater.inflate(R.menu.menu_home, menu);
+
+        return true;
+    }
+
+    // Called each time the action mode is shown. Always called after
+    // onCreateActionMode, but
+    // may be called multiple times if the mode is invalidated.
 
     @Override
-    public void clear() {
-        chatMessageList.clear();
-        super.clear();
+    public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+        return false;
     }
 
-    public void add(ChatMsgModel object) {
-        chatMessageList.add(object);
-        super.add(object);
-    }
-
-    public ChatMsgModel getItemFromID(long _id) {
-        ChatMsgModel result = null;
-        for (ChatMsgModel item : chatMessageList) {
-            if (item._id == _id) {
-                result = item;
-                break;
-            }
+    // Called when the user selects a contextual menu item
+    @Override
+    public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_speech:
+                // show();
+                // Action picked, so close the CAB
+                mode.finish();
+                return true;
+            default:
+                return false;
         }
-        return result;
+
     }
 
     @Override
-    public int getPosition(Object item) {
-        return super.getPosition(item);
+    public void onDestroyActionMode(ActionMode mode) {
+        getSupportActionBar().show();
     }
-
-    public ChatArrayAdapter(Context context, int textViewResourceId) {
-        super(context, textViewResourceId);
-    }
-
-    public int getCount() {
-        return this.chatMessageList.size();
-    }
-
-    public ChatMsgModel getItem(int index) {
-        return this.chatMessageList.get(index);
-    }
-
-    public View getView(int position, View convertView, ViewGroup parent) {
-        View row = convertView;
-        if (row == null) {
-            LayoutInflater inflater = (LayoutInflater) this.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            row = inflater.inflate(R.layout.chat_single_msg, parent, false);
-        }
-        singleMessageContainer = (LinearLayout) row.findViewById(R.id.singleMessageContainer);
-        ChatMsgModel chatMessageObj = getItem(position);
-        chatText = (TextView) row.findViewById(R.id.singleMessage);
-        String textMessage = chatMessageObj.TextMessage;
-
-        if (chatMessageObj.IsMyMsg == AppEnum.SEND_BY_ME ) {
-
-            switch (chatMessageObj.IsSendDelv)
-            {
-                case AppEnum.Trying_SEND :
-                    textMessage += "\n ...";
-                    break;
-                case AppEnum.SEND :
-                    textMessage += "\n +";
-                    break;
-                case AppEnum.DELIVERED :
-                    textMessage += "\n ++";
-                    break;
-                case AppEnum.UNDELIVERED :
-                    textMessage += "\n !!";
-                    break;
-            }
-        }
-        chatText.setText(textMessage);
-        chatText.setBackgroundResource(chatMessageObj.left ? R.drawable.bubble_b : R.drawable.bubble_a);
-        singleMessageContainer.setGravity(chatMessageObj.left ? Gravity.LEFT : Gravity.RIGHT);
-        return row;
-    }
-
-    public Bitmap decodeToBitmap(byte[] decodedByte) {
-        return BitmapFactory.decodeByteArray(decodedByte, 0, decodedByte.length);
-    }
-
-}
-
-class ChatMessage {
-    public boolean left;
-    public String message;
-
-    public ChatMessage(boolean left, String message) {
-        super();
-        this.left = left;
-        this.message = message;
-    }
+    //endregion
 }

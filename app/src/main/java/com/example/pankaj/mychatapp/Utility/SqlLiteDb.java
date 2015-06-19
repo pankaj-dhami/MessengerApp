@@ -96,12 +96,7 @@ public class SqlLiteDb {
     //endregion
 
     //region Chat message curd operations
-    private String getDateTime() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat(
-                "yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-        Date date = new Date();
-        return dateFormat.format(date);
-    }
+
 
     public long createChatMsgEntry(ChatMsgModel userModel) {
         //    UserModel existingUser = getFriend(userModel.UserID);
@@ -118,7 +113,7 @@ public class SqlLiteDb {
             cv.put("PicData", userModel.PicData);
             cv.put("IsMyMsg", userModel.IsMyMsg);
             cv.put("IsSendDelv", userModel.IsSendDelv);
-            cv.put("CreatedDate", getDateTime());
+            cv.put("CreatedDate", Common.getDateTime());
             id = database.insert(DB_TABLE_CHAT_MSG, null, cv);
         } catch (Exception e) {
             e.printStackTrace();

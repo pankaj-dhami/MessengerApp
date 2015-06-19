@@ -1,6 +1,11 @@
 <resources>
+    <string-array name="menu_demo">
+        <item>Edit</item>
+        <item>Delete</item>
+        <item>Send</item>
+    </string-array>
+    <string name="tickMark">✓</string>
     <string name="app_name">MyChatApp</string>
-
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="prompt_email">Email</string>
@@ -33,8 +38,8 @@
     <string name="passwordHint">Password</string>
     <string name="loginButton">1. Log in</string>
     <string name="send_button">2. Send Notification</string>
-    <string name="tickMark">#8226</string>
 <string name="notification_message_tag_hint">
     Recipient username tag
 </string>
+
 </resources>

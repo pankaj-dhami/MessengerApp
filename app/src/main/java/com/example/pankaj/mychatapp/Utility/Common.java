@@ -8,7 +8,12 @@ import android.provider.ContactsContract;
 
 import com.example.pankaj.mychatapp.Model.UserModel;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * Created by pankaj.dhami on 6/15/2015.
@@ -91,5 +96,28 @@ public class Common {
             }
         }
         return  friendList;
+    }
+
+    public static String getDateTime() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(
+                "yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        Date date = new Date();
+        return dateFormat.format(date);
+    }
+
+    public static String getTime(String dateInString)
+    {
+        String time="";
+        try {
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Date parsedDate = formatter.parse(dateInString);
+            SimpleDateFormat dateFormat = new SimpleDateFormat(
+                    "hh:mm a", Locale.getDefault());
+
+            time= DateFormat.getDateTimeInstance().format(parsedDate);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return  time;
     }
 }
