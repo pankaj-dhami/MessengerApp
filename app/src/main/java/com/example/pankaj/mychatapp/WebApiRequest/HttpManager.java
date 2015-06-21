@@ -1,27 +1,17 @@
 package com.example.pankaj.mychatapp.WebApiRequest;
 
 import android.content.Context;
-import android.os.AsyncTask;
-import android.util.Base64;
 
 import com.example.pankaj.mychatapp.Model.AppResultModel;
-import com.example.pankaj.mychatapp.Model.MsgModel;
-import com.example.pankaj.mychatapp.Model.SendMsgModel;
 import com.example.pankaj.mychatapp.Model.UserModel;
 import com.example.pankaj.mychatapp.Utility.ApplicationConstants;
 import com.example.pankaj.mychatapp.Utility.HubNotificationService;
-import com.example.pankaj.mychatapp.Utility.MyService;
-import com.example.pankaj.mychatapp.Utility.SqlLiteDb;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.HttpURLConnection;
-import java.util.ArrayList;
-import java.util.Objects;
 
 /**
  * Created by pankaj on 6/5/2015.
@@ -77,17 +67,19 @@ public class HttpManager {
         return result;
     }
 
-    public static AppResultModel registerUser(String mobile, String password) throws Exception {
+    public static AppResultModel registerUser(UserModel userModel) throws Exception {
         String uri = ApplicationConstants.RegisterAddress;
-        AppResultModel result = new AppResultModel();
-        JSONObject item = new JSONObject();
-        item.put("mobileNo", mobile);
-        item.put("password", password);
-        item.put("confirmPassword", password);
-        item.put("name", "");
+        AppResultModel result = new AppResultModel();  GsonBuilder builder = new GsonBuilder();
+        Gson gson = builder.create();
 
+        String query = gson.toJson(userModel);
+        /*JSONObject item = new JSONObject();
+        item.put("MobileNo", userModel.MobileNo);
+        item.put("Name", userModel.Name);
+        item.put("Pic64Data", new JSONArray(userModel.Pic64Data));
+        item.put("MyStatus", userModel.MyStatus);*/
 
-        AppResultModel response = APIHandler.createPost(uri, item.toString(), ApplicationConstants.contentTypeJson);
+        AppResultModel response = APIHandler.createPost(uri, query.toString(), ApplicationConstants.contentTypeJson);
         if (response.ResultCode == HttpURLConnection.HTTP_OK)//successful
         {
             result.ResultCode = response.ResultCode;

@@ -3,6 +3,7 @@ package com.example.pankaj.mychatapp;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -79,12 +80,12 @@ public class ChatArrayAdapter extends ArrayAdapter {
         singleMessageContainer = (LinearLayout) row.findViewById(R.id.singleMessageContainer);
         ChatMsgModel chatMessageObj = getItem(position);
         chatText = (TextView) row.findViewById(R.id.singleMessage);
-        infoText= (TextView) row.findViewById(R.id.txtInfo);
+        infoText = (TextView) row.findViewById(R.id.txtInfo);
 
         String textMessage = chatMessageObj.TextMessage;
-        String infoTextStr= " "+ Common.getTime(chatMessageObj.CreatedDate);
-        if (chatMessageObj.IsMyMsg == AppEnum.SEND_BY_ME ) {
-            infoTextStr=  " " + Common.getTime(chatMessageObj.CreatedDate);
+        String infoTextStr = " " + Common.getTime(chatMessageObj.CreatedDate);
+        if (chatMessageObj.IsMyMsg == AppEnum.SEND_BY_ME) {
+            infoTextStr = " " + Common.getTime(chatMessageObj.CreatedDate);
             String tick = HubNotificationService.thisServiceContext.getResources().getString(R.string.tickMark);
             switch (chatMessageObj.IsSendDelv) {
                 case AppEnum.Trying_SEND:
@@ -101,9 +102,14 @@ public class ChatArrayAdapter extends ArrayAdapter {
                     break;
             }
         }
+        if (chatMessageObj.isChecked) {
+            singleMessageContainer.setBackgroundColor(Color.parseColor("#C4C4C4"));
+        } else {
+            singleMessageContainer.setBackgroundColor(Color.parseColor("#00000000"));
+        }
         chatText.setText(textMessage);
         infoText.setText(infoTextStr);
-        chatText.setBackgroundResource(chatMessageObj.left ? R.drawable.out_message_bg  : R.drawable.in_message_bg);
+        chatText.setBackgroundResource(chatMessageObj.left ? R.drawable.out_message_bg : R.drawable.in_message_bg);
         singleMessageContainer.setGravity(chatMessageObj.left ? Gravity.LEFT : Gravity.RIGHT);
         return row;
     }

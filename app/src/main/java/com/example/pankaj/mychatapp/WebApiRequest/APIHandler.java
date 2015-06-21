@@ -30,6 +30,7 @@ public class APIHandler {
         StrictMode.setThreadPolicy(policy);
         StringBuilder sb = new StringBuilder();
         BufferedReader br = null;
+        final String BOUNDARY = "3C3F786D6C2076657273696F6E2E302220656E636F64696E673D662D38223F3E0A3C6D616E6966";
         int responseCode = 0;
         try {
             URL url = new URL(uri);
@@ -37,6 +38,8 @@ public class APIHandler {
             con.setDoOutput(true); // Triggers POST.
             con.setRequestProperty("Content-Type", contentType);
             con.setRequestMethod("POST");
+           // con.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + BOUNDARY);
+           // con.setRequestProperty("Accept", "text/json");
             DataOutputStream wr = new DataOutputStream(con.getOutputStream());
             wr.writeBytes(query);
             wr.flush();

@@ -10,49 +10,38 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.DataSetObserver;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.text.TextUtils;
 import android.view.ActionMode;
 import android.view.ContextMenu;
-import android.view.Gravity;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnKeyListener;
-import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.pankaj.mychatapp.Model.ChatMsgModel;
 import com.example.pankaj.mychatapp.Model.MsgModel;
 import com.example.pankaj.mychatapp.Model.UserModel;
 import com.example.pankaj.mychatapp.Utility.AppEnum;
-import com.example.pankaj.mychatapp.Utility.ApplicationConstants;
 import com.example.pankaj.mychatapp.Utility.Common;
 import com.example.pankaj.mychatapp.Utility.HubNotificationService;
-import com.example.pankaj.mychatapp.Utility.MyService;
 import com.example.pankaj.mychatapp.Utility.SqlLiteDb;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.List;
 
-public class ChatBubbleActivity extends ActionBarActivity implements ActionMode.Callback  {
+public class ChatBubbleActivity extends ActionBarActivity implements ActionMode.Callback {
     private static final String TAG = "ChatActivity";
 
     private ChatArrayAdapter chatArrayAdapter;
@@ -68,7 +57,6 @@ public class ChatBubbleActivity extends ActionBarActivity implements ActionMode.
     ArrayList<ChatMsgModel> selectedItems = new ArrayList<ChatMsgModel>();
     boolean toggleSelection;
     protected ActionMode mActionMode;
-
 
 
     @Override
@@ -105,7 +93,7 @@ public class ChatBubbleActivity extends ActionBarActivity implements ActionMode.
             }
         });
 
-        listView.setTranscriptMode(AbsListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
+        listView.setTranscriptMode(AbsListView.TRANSCRIPT_MODE_NORMAL);
         listView.setAdapter(chatArrayAdapter);
 
         //to scroll the list view to bottom on data change
@@ -131,21 +119,56 @@ public class ChatBubbleActivity extends ActionBarActivity implements ActionMode.
                 if (item != null && selectedItems.contains(item)) {
                     chatArrayAdapter.getItem(position).isChecked = false;
                     selectedItems.remove(item);
-                    getSupportActionBar().show();
-                    view.setSelected(false);
-                    mActionMode.finish();
                 } else {
                     chatArrayAdapter.getItem(position).isChecked = true;
                     selectedItems.add(chatArrayAdapter.getItem(position));
-                    mActionMode = ChatBubbleActivity.this.startActionMode(ChatBubbleActivity.this);
-                    view.setSelected(true);
-                    getSupportActionBar().hide();
+                    if (mActionMode==null) {
+                        mActionMode = ChatBubbleActivity.this.startActionMode(ChatBubbleActivity.this);
+                        getSupportActionBar().hide();
+                    }
+
                 }
-                if (selectedItems.isEmpty())
+                if (selectedItems.isEmpty()) {
+                    if(mActionMode!=null) {
+                        mActionMode.finish();
+                        mActionMode = null;
+                    }
                     toggleSelection = false;
+                }
+                chatArrayAdapter.notifyDataSetChanged();
                 return true;
             }
         });
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if (toggleSelection) {
+                    ChatMsgModel item = getSelectedItem(chatArrayAdapter.getItem(position)._id);
+                    if (item != null && selectedItems.contains(item)) {
+                        chatArrayAdapter.getItem(position).isChecked = false;
+                        selectedItems.remove(item);
+
+                    } else {
+                        chatArrayAdapter.getItem(position).isChecked = true;
+                        selectedItems.add(chatArrayAdapter.getItem(position));
+                        if (mActionMode==null) {
+                            mActionMode = ChatBubbleActivity.this.startActionMode(ChatBubbleActivity.this);
+                            getSupportActionBar().hide();
+                        }
+                    }
+
+                }
+                if (selectedItems.isEmpty()) {
+                    if(mActionMode!=null) {
+                        mActionMode.finish();
+                        mActionMode = null;
+                    }
+                    toggleSelection = false;
+                }
+                chatArrayAdapter.notifyDataSetChanged();
+            }
+        });
+
         //  registerForContextMenu(listView);
 
 
@@ -204,8 +227,8 @@ public class ChatBubbleActivity extends ActionBarActivity implements ActionMode.
                         String query = bundle.getString("message");
                         ChatMsgModel chatMsgModel = HubNotificationService.getChatModel(new JSONObject(query));
                         if (chatMsgModel.UserID == thisChatUser.UserID) {
-                            ChatMsgModel existingItem=  chatArrayAdapter.getItemFromID(chatMsgModel._id);
-                            existingItem.IsSendDelv=chatMsgModel.IsSendDelv;
+                            ChatMsgModel existingItem = chatArrayAdapter.getItemFromID(chatMsgModel._id);
+                            existingItem.IsSendDelv = chatMsgModel.IsSendDelv;
                             chatArrayAdapter.notifyDataSetChanged();
                         }
                     } catch (JSONException e) {
@@ -302,6 +325,13 @@ public class ChatBubbleActivity extends ActionBarActivity implements ActionMode.
     @Override
     public void onDestroyActionMode(ActionMode mode) {
         getSupportActionBar().show();
+        for (ChatMsgModel item:selectedItems)
+        {
+            item.isChecked=false;
+        }
+        selectedItems.clear();
+        chatArrayAdapter.notifyDataSetChanged();
+        mActionMode = null;
     }
     //endregion
 }

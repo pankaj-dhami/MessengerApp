@@ -27,7 +27,6 @@ import android.widget.Toast;
 import com.example.pankaj.mychatapp.Model.AppResultModel;
 import com.example.pankaj.mychatapp.Utility.LoadingControl;
 import com.example.pankaj.mychatapp.Utility.ProfileQuery;
-import com.example.pankaj.mychatapp.WebApiRequest.HttpManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -146,7 +145,7 @@ public class RegisterActivity extends Activity implements LoaderManager.LoaderCa
         }
     }
 
-    public class UserRegisterTask extends AsyncTask<Void, Void, Boolean> {
+    private class UserRegisterTask extends AsyncTask<Void, Void, Boolean> {
 
         private final String mobileStr;
         private final String passwordStr;
@@ -164,12 +163,12 @@ public class RegisterActivity extends Activity implements LoaderManager.LoaderCa
             // following try-catch just simulates network access
             try {
 
-                result=  HttpManager.registerUser(mobileStr,passwordStr);
-                return   result.IsValid;
+             //   result=  HttpManager.registerUser();
+              //  return   result.IsValid;
             } catch (Exception e) {
                 return false;
             }
-
+            return false;
             //using a local dummy credentials store to authenticate
         //    String[] pieces = DUMMY_CREDENTIALS.split(":");
          //   if (pieces[0].equals(emailStr) && pieces[1].equals(passwordStr)) {

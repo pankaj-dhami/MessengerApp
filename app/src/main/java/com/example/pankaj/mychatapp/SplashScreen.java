@@ -9,7 +9,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.example.pankaj.mychatapp.Utility.MyService;
+import com.example.pankaj.mychatapp.CustomUI.FileBrowserActivity;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -21,7 +21,8 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 
 public class SplashScreen extends Activity {
-
+    private final int REQUEST_CODE_PICK_DIR = 1;
+    private final int REQUEST_CODE_PICK_FILE = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +36,7 @@ public class SplashScreen extends Activity {
             }
         });
         Button btn2=(Button)findViewById(R.id.buttonstop);
-        btn1.setOnClickListener(new View.OnClickListener() {
+        btn2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 onStopService(view);
@@ -61,7 +62,8 @@ public class SplashScreen extends Activity {
                 //    String str= readFromfile("pankaj.txt",1);
                //     if (TextUtils.isEmpty(str))
                 //    {
-                      startActivity(new Intent(SplashScreen.this, LoginActivity.class));
+                     // startActivity(new Intent(SplashScreen.this, FileExplore.class));
+
                 //   }
                  //   else
                   //  {
@@ -168,14 +170,19 @@ public class SplashScreen extends Activity {
 
     public void onStartClick(View v)
     {
-        Intent intent = new Intent(this, MyService.class);
-        intent.putExtra("message","pankaj");
-        this.startService(intent);
-        Toast.makeText(this, "service destroyed ", Toast.LENGTH_LONG);
+        startActivity(new Intent(SplashScreen.this, RegistrationFormActivity.class));
     }
     public void onStopService(View v) {
-        Intent intent = new Intent(this, MyService.class);
-        this.stopService(intent);
+        Intent fileExploreIntent = new Intent(
+                FileBrowserActivity.INTENT_ACTION_SELECT_DIR,
+                null,
+                SplashScreen.this,
+                FileBrowserActivity.class
+        );
+        startActivityForResult(
+                fileExploreIntent,
+                REQUEST_CODE_PICK_DIR
+        );
     }
 
     @Override
@@ -199,5 +206,46 @@ public class SplashScreen extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_CODE_PICK_DIR) {
+            if(resultCode == RESULT_OK) {
+                String newDir = data.getStringExtra(
+                        FileBrowserActivity.returnDirectoryParameter);
+                Toast.makeText(
+                        this,
+                        "Received DIRECTORY path from file browser:\n"+newDir,
+                        Toast.LENGTH_LONG).show();
+
+            } else {//if(resultCode == this.RESULT_OK) {
+                Toast.makeText(
+                        this,
+                        "Received NO result from file browser",
+                        Toast.LENGTH_LONG).show();
+            }//END } else {//if(resultCode == this.RESULT_OK) {
+        }//if (requestCode == REQUEST_CODE_PICK_DIR) {
+
+        if (requestCode == REQUEST_CODE_PICK_FILE) {
+            if(resultCode == RESULT_OK) {
+                String newFile = data.getStringExtra(
+                        FileBrowserActivity.returnFileParameter);
+                Toast.makeText(
+                        this,
+                        "Received FILE path from file browser:\n"+newFile,
+                        Toast.LENGTH_LONG).show();
+
+            } else {//if(resultCode == this.RESULT_OK) {
+                Toast.makeText(
+                        this,
+                        "Received NO result from file browser",
+                        Toast.LENGTH_LONG).show();
+            }//END } else {//if(resultCode == this.RESULT_OK) {
+        }//if (requestCode == REQUEST_CODE_PICK_FILE) {
+
+
+
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }
