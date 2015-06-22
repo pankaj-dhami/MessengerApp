@@ -164,7 +164,7 @@ public class RegistrationFormActivity extends ActionBarActivity {
                 try {
                     Bitmap bmp = new UserPicture(selectedImageUri, getContentResolver()).getBitmap();
                     ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                    bmp.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                    bmp.compress(Bitmap.CompressFormat.PNG, 20, stream);
                     imageByteArray = stream.toByteArray();
                     selectedImagePreview.setImageBitmap(bmp);
                 } catch (IOException e) {
@@ -263,9 +263,9 @@ public class RegistrationFormActivity extends ActionBarActivity {
         UserRegisterTask(String mobile, String name, String countryCode, String stauts, byte[] PicData) {
             model = new UserModel();
 
-            model.MobileNo = countryCode + mobile;
+            model.MobileNo = countryCode.replace('+',' ').trim() + mobile;
             model.Name = name;
-           // model.PicData = PicData;
+           model.Password="pankaj";
             model.MyStatus = stauts;
             String sb = Base64.encodeToString(PicData, Base64.DEFAULT);
             model.Pic64Data = new ArrayList<String>();

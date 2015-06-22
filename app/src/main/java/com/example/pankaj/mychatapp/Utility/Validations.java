@@ -11,7 +11,7 @@ public class Validations {
     }
     public static boolean isMobileValid(String mobile) {
         //add your own logic
-        return  android.util.Patterns.PHONE.matcher(mobile).matches() && mobile.length()==10;
+        return  true; //android.util.Patterns.PHONE.matcher(mobile).matches() && mobile.length()==10;
       //  return mobile.length()==10;
     }
     public static boolean isPasswordValid(String password) {

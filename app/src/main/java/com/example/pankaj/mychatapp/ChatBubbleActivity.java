@@ -10,12 +10,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.DataSetObserver;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.text.TextUtils;
 import android.view.ActionMode;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -26,8 +29,10 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.pankaj.mychatapp.CustomUI.RoundedImageView;
 import com.example.pankaj.mychatapp.Model.ChatMsgModel;
 import com.example.pankaj.mychatapp.Model.MsgModel;
 import com.example.pankaj.mychatapp.Model.UserModel;
@@ -65,6 +70,25 @@ public class ChatBubbleActivity extends ActionBarActivity implements ActionMode.
         Intent myIntent = getIntent();
         thisChatUser = HubNotificationService.chatUser;
         setTitle(thisChatUser.Name);
+        ActionBar actionBar = getSupportActionBar();
+        View row = null;
+        if (row == null) {
+            LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            row = inflater.inflate(R.layout.chat_actionbar_customview,null, false);
+        }
+        RoundedImageView chatUserImage = (RoundedImageView) row.findViewById(R.id.chatUserImage);
+        TextView  txtUserName = (TextView) row.findViewById(R.id.txtUserName);
+        TextView txtOnlineStatus = (TextView) row.findViewById(R.id.txtOnlineStatus);
+        if (thisChatUser.PicData!=null && thisChatUser.PicData.length >3) {
+            try {
+                chatUserImage.setImageBitmap(BitmapFactory.decodeByteArray(thisChatUser.PicData, 0, thisChatUser.PicData.length));
+            } catch (Exception e) {
+                chatUserImage.setImageResource(R.drawable.nouser);
+            }
+        }
+        txtUserName.setText(thisChatUser.Name);
+        txtOnlineStatus.setText(thisChatUser.MobileNo);
+        actionBar.setCustomView(row);
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(thisChatUser.UserID);
 

@@ -70,7 +70,6 @@ public class RoundedImageView extends ImageView {
         final int color = 0xffa19774;
         final Paint paint = new Paint();
         final Rect rect = new Rect(0, 0, radius, radius);
-
         paint.setAntiAlias(true);
         paint.setFilterBitmap(true);
         paint.setDither(true);
@@ -80,7 +79,6 @@ public class RoundedImageView extends ImageView {
                 radius / 2 + 0.7f, radius / 2 + 0.1f, paint);
         paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
         canvas.drawBitmap(sbmp, rect, rect, paint);
-
         return output;
     }
 

@@ -173,16 +173,7 @@ public class SplashScreen extends Activity {
         startActivity(new Intent(SplashScreen.this, RegistrationFormActivity.class));
     }
     public void onStopService(View v) {
-        Intent fileExploreIntent = new Intent(
-                FileBrowserActivity.INTENT_ACTION_SELECT_DIR,
-                null,
-                SplashScreen.this,
-                FileBrowserActivity.class
-        );
-        startActivityForResult(
-                fileExploreIntent,
-                REQUEST_CODE_PICK_DIR
-        );
+        startActivity(new Intent(SplashScreen.this, LoginActivity.class));
     }
 
     @Override

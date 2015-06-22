@@ -18,6 +18,7 @@ import com.example.pankaj.mychatapp.Model.UserModel;
 import com.example.pankaj.mychatapp.R;
 import com.example.pankaj.mychatapp.WebApiRequest.APIHandler;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.google.common.base.Joiner;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.microsoft.windowsazure.messaging.NotificationHub;
@@ -48,7 +49,7 @@ public class HubNotificationService extends Service {
     private final String HubName = "messengerapihub";
     private final String HubListenConnectionString = "Endpoint=sb://messengerapihub-ns.servicebus.windows.net/;SharedAccessKeyName=DefaultListenSharedAccessSignature;SharedAccessKey=VcUULvdA/EK3KWO7K1IAySQYWJt96zfKc2H+BcLMotI=";
     private RegisterClient registerClient;
-    public static final String BACKEND_ENDPOINT = "http://apitoken.azurewebsites.net";
+    public static final String BACKEND_ENDPOINT = "http://messengerapi.azurewebsites.net";
     public static UserModel thisUser;
     public static HubNotificationService thisServiceContext;
     public static ChatMsgModel chatMsgModel;
@@ -239,6 +240,10 @@ public class HubNotificationService extends Service {
                             for (int i = 0; i < jsonarr.length(); i++) {
                                 JSONObject obj = jsonarr.getJSONObject(i);
                                 UserModel user = getUserModel(obj);
+                                if (user.PictureUrl != null && user.PictureUrl.length() > 0) {
+                                    byte[] decodedBytes = Base64.decode(user.PictureUrl, Base64.DEFAULT);
+                                    user.PicData = decodedBytes;
+                                }
                                 resultList.add(user);
                                 entity.createFriendsEntry(user);
                             }
@@ -281,6 +286,11 @@ public class HubNotificationService extends Service {
                             for (int i = 0; i < jsonarr.length(); i++) {
                                 JSONObject obj = jsonarr.getJSONObject(i);
                                 UserModel user = getUserModel(obj);
+                                    if (user.PictureUrl != null && user.PictureUrl.length() > 0) {
+                                        byte[] decodedBytes = Base64.decode(user.PictureUrl, Base64.DEFAULT);
+                                        user.PicData = decodedBytes;
+                                    }
+
                                 resultList.add(user);
                                 entity.updateFriends(user);
                             }
@@ -309,7 +319,8 @@ public class HubNotificationService extends Service {
         user.UserID = obj.getInt("UserID");
         user.MyStatus = obj.getString("MyStatus");
         user.PictureUrl = obj.getString("PictureUrl");
-        user.PicData = Base64.decode(user.PictureUrl, Base64.DEFAULT);
+
+        //user.PicData = Base64.decode(user.PictureUrl, Base64.DEFAULT);
         return user;
     }
 
@@ -325,8 +336,7 @@ public class HubNotificationService extends Service {
         if (obj.has("PictureUrl")) {
             user.PictureUrl = obj.getString("PictureUrl");
         }
-        if (obj.has("CreatedDate"))
-        {
+        if (obj.has("CreatedDate")) {
             user.CreatedDate = obj.getString("CreatedDate");
         }
         user.left = obj.getBoolean("left");
@@ -372,7 +382,7 @@ class SendMessageThread implements Runnable {
                     if (response.ResultCode == HttpURLConnection.HTTP_OK)//successful
                     {
                         finalMsg.IsSendDelv = AppEnum.SEND;
-                       break;
+                        break;
                     }
                     n++;
                 }
