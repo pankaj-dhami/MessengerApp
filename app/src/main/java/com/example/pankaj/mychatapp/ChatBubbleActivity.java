@@ -69,11 +69,14 @@ public class ChatBubbleActivity extends ActionBarActivity implements ActionMode.
         super.onCreate(savedInstanceState);
         Intent myIntent = getIntent();
         thisChatUser = HubNotificationService.chatUser;
-        setTitle(thisChatUser.Name);
+        //setTitle(thisChatUser.Name);
         ActionBar actionBar = getSupportActionBar();
+       // ActionBar mActionBar = getActionBar();
+       // actionBar.setDisplayShowHomeEnabled(false);
+        actionBar.setDisplayShowTitleEnabled(false);
         View row = null;
         if (row == null) {
-            LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            LayoutInflater inflater = LayoutInflater.from(this);
             row = inflater.inflate(R.layout.chat_actionbar_customview,null, false);
         }
         RoundedImageView chatUserImage = (RoundedImageView) row.findViewById(R.id.chatUserImage);
@@ -89,6 +92,7 @@ public class ChatBubbleActivity extends ActionBarActivity implements ActionMode.
         txtUserName.setText(thisChatUser.Name);
         txtOnlineStatus.setText(thisChatUser.MobileNo);
         actionBar.setCustomView(row);
+        actionBar.setDisplayShowCustomEnabled(true);
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(thisChatUser.UserID);
 
