@@ -3,7 +3,6 @@ package com.example.pankaj.mychatapp;
 import android.app.Activity;
 import android.app.LoaderManager;
 import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
@@ -29,7 +28,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.pankaj.mychatapp.Model.AppResultModel;
-import com.example.pankaj.mychatapp.Model.UserModel;
 import com.example.pankaj.mychatapp.Utility.ApplicationConstants;
 import com.example.pankaj.mychatapp.Utility.HubNotificationService;
 import com.example.pankaj.mychatapp.Utility.LoadingControl;
@@ -282,7 +280,7 @@ public class LoginActivity extends Activity implements LoaderManager.LoaderCallb
                 ApplicationConstants.thisUser.Name=ApplicationConstants.thisUser.MobileNo;
                 entity.updateUser(ApplicationConstants.thisUser);
                 entity.close();
-                startActivity(new Intent(LoginActivity.this, HomeActivity.class));
+                startActivity(new Intent(LoginActivity.this, HomeDash.class));
                 Intent intent = new Intent(LoginActivity.this, MyService.class);
                // intent.putExtra("msg","start");
                 LoginActivity.this.startService(intent);

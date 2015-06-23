@@ -57,9 +57,10 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".HomeActivity"
+            android:name=".HomeDash"
             android:label="ChatteR.."
-            android:theme="@style/Theme.Dark" >
+            android:theme="@style/Theme.NoActionBar"
+            >
         </activity>
         <activity
             android:name=".ChatBubbleActivity"

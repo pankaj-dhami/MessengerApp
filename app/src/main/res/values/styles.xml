@@ -12,11 +12,18 @@
         <item name="android:editTextStyle">@style/RobotoEditTextStyle</item>-->
     </style>
 
-    <style name="Theme.Dark" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="Theme.NoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
+
+    <item name="colorPrimary">@color/ColorPrimary</item>
+    <item name="colorPrimaryDark">@color/ColorPrimaryDark</item>
+    </style>
+    <style name="Theme.Dark" parent="AppTheme">
+
         <item name="colorPrimary">@color/ColorPrimary</item>
-        <item name="colorPrimaryDark">@color/ColorPrimary</item>
-        <item name="android:actionModeBackground">@color/formBgColor</item>
-        <item name="android:actionModeCloseDrawable">@drawable/abc_ic_ab_back_mtrl_am_alpha</item>
+        <item name="colorPrimaryDark">@color/ColorPrimaryDark</item>
+
+        <!-- <item name="android:actionModeBackground">@color/formBgColor</item>
+         <item name="android:actionModeCloseDrawable">@drawable/abc_ic_ab_back_mtrl_am_alpha</item>-->
       <!--  <item name="android:background">@drawable/app_storm_apple_mac_blue_symbol_8281_1080x1920</item>-->
       <!--  <item name="android:actionBarTabStyle">@style/Theme.Dark.Tab</item>
         <item name="actionBarTabStyle">@style/Theme.Dark.Tab</item>-->

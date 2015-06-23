@@ -31,4 +31,5 @@ dependencies {
     compile files('libs/mobileservices-1.1.5.jar')
     compile files('libs/notification-hubs-0.4.jar')
     compile files('libs/com.google.common_1.0.0.201004262004.jar')
+    compile 'com.github.markushi:android-ui:1.2'
 }

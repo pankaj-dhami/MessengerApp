@@ -1,31 +1,39 @@
 package com.example.pankaj.mychatapp;
 
-import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.pankaj.mychatapp.CustomUI.MaterialTab;
+import com.example.pankaj.mychatapp.CustomUI.MaterialTabHost;
+import com.example.pankaj.mychatapp.CustomUI.MaterialTabListener;
 import com.example.pankaj.mychatapp.Utility.ApplicationConstants;
 import com.example.pankaj.mychatapp.Utility.Common;
 import com.example.pankaj.mychatapp.Utility.HubNotificationService;
 import com.example.pankaj.mychatapp.Utility.MyService;
-import com.example.pankaj.mychatapp.WebApiRequest.HttpManager;
 
 import java.util.Locale;
 
 
-public class HomeActivity extends ActionBarActivity implements ActionBar.TabListener {
+public class HomeActivity extends ActionBarActivity implements MaterialTabListener {
 
+    private Resources res;
+    private ViewPager pager;
+    private ViewPagerAdapter pagerAdapter;
+    MaterialTabHost tabHost;
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a
@@ -46,7 +54,32 @@ public class HomeActivity extends ActionBarActivity implements ActionBar.TabList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        // Set up the action bar.
+        Toolbar toolbar = (Toolbar) this.findViewById(R.id.toolbar);
+        toolbar.setTitleTextColor(Color.WHITE);
+        this.setSupportActionBar(toolbar);
+        res = this.getResources();
+        tabHost = (MaterialTabHost) this.findViewById(R.id.tabHost);
+        pager = (ViewPager) this.findViewById(R.id.pager);
+
+        // init view pager
+        pagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
+        pager.setAdapter(pagerAdapter);
+        pager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                // when user do a swipe the selected tab change
+                tabHost.setSelectedNavigationItem(position);
+            }
+        });
+        // insert all tabs from pagerAdapter data
+        for (int i = 0; i < pagerAdapter.getCount(); i++) {
+            tabHost.addTab(
+                    tabHost.newTab()
+                            .setIcon(getIcon(i))
+                            .setTabListener(this)
+            );
+        }
+     /*   // Set up the action bar.
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
@@ -81,11 +114,10 @@ public class HomeActivity extends ActionBarActivity implements ActionBar.TabList
 
             actionBar.addTab(
                     actionBar.newTab()
-                            //  .setIcon(R.drawable.ic_action_call)
                             // .setCustomView(main)
-                            .setText(mSectionsPagerAdapter.getPageTitle(i))
+                            .setIcon(mSectionsPagerAdapter.getIcon(i))
                             .setTabListener(this));
-        }
+        }*/
         // getUpdatedFriendData
         HubNotificationService manager = HubNotificationService.thisServiceContext;
         manager.getUpdatedFriendData(ApplicationConstants.thisUser.UserID);
@@ -132,26 +164,18 @@ public class HomeActivity extends ActionBarActivity implements ActionBar.TabList
     }
 
     @Override
-    public void onTabSelected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-        // When the given tab is selected, switch to the corresponding page in
-        // the ViewPager.
-        mViewPager.setCurrentItem(tab.getPosition());
+    public void onTabSelected(MaterialTab tab) {
+// when the tab is clicked the pager swipe content to the tab position
+        pager.setCurrentItem(tab.getPosition());
     }
 
     @Override
-    public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
+    public void onTabReselected(MaterialTab tab) {
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        stopService(new Intent(this, MyService.class));
+    public void onTabUnselected(MaterialTab tab) {
     }
-
-    @Override
-    public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-    }
-
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
@@ -199,8 +223,57 @@ public class HomeActivity extends ActionBarActivity implements ActionBar.TabList
             }
             return null;
         }
+
+        /*
+  * It doesn't matter the color of the icons, but they must have solid colors
+  */
+        private Drawable getIcon(int position) {
+            switch(position) {
+                case 0:
+                    return res.getDrawable(R.drawable.ic_person_black_24dp);
+                case 1:
+                    return res.getDrawable(R.drawable.ic_group_black_24dp);
+                case 2:
+                    return res.getDrawable(R.drawable.ic_notifications_off_white_24dp);
+            }
+            return null;
+        }
     }
 
+    private class ViewPagerAdapter extends FragmentStatePagerAdapter {
+        public ViewPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+        public Fragment getItem(int position) {
+
+            Fragment tab = null;
+            switch (position) {
+                case 0:
+                    tab = new Tab1();
+                    break;
+                case 1:
+                    tab = new Tab2();
+                    break;
+                case 2:
+                    tab = new Tab2();
+                    break;
+            }
+            return tab;
+        }
+        @Override
+        public int getCount() {
+            return 3;
+        }
+        @Override
+        public CharSequence getPageTitle(int position) {
+            switch(position) {
+                case 0: return "tab 1";
+                case 1: return "tab 2";
+                case 2: return "tab 3";
+                default: return null;
+            }
+        }
+    }
     /**
      * A placeholder fragment containing a simple view.
      */
@@ -233,5 +306,18 @@ public class HomeActivity extends ActionBarActivity implements ActionBar.TabList
             return rootView;
         }
     }
-
+    /*
+    * It doesn't matter the color of the icons, but they must have solid colors
+    */
+    private Drawable getIcon(int position) {
+        switch(position) {
+            case 0:
+                return res.getDrawable(R.drawable.ic_person_black_24dp);
+            case 1:
+                return res.getDrawable(R.drawable.ic_group_black_24dp);
+            case 2:
+                return res.getDrawable(R.drawable.ic_notifications_off_white_24dp);
+        }
+        return null;
+    }
 }
