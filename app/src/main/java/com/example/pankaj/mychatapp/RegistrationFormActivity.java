@@ -26,6 +26,7 @@ import android.widget.Toast;
 import com.example.pankaj.mychatapp.CustomUI.UserPicture;
 import com.example.pankaj.mychatapp.Model.AppResultModel;
 import com.example.pankaj.mychatapp.Model.UserModel;
+import com.example.pankaj.mychatapp.Utility.Common;
 import com.example.pankaj.mychatapp.Utility.LoadingControl;
 import com.example.pankaj.mychatapp.WebApiRequest.HttpManager;
 
@@ -105,7 +106,7 @@ public class RegistrationFormActivity extends ActionBarActivity {
         });
         mobileTextView = (AutoCompleteTextView) findViewById(R.id.txtmobileNo);
         txtCountryCode = (EditText) findViewById(R.id.txtCountryCode);
-        txtCountryCode.setText(GetCountryZipCode());
+        txtCountryCode.setText( "+" + Common.GetCountryZipCode());
         txbName = (EditText) findViewById(R.id.txbName);
         txbStatus = (EditText) findViewById(R.id.txbStatus);
 
@@ -211,23 +212,6 @@ public class RegistrationFormActivity extends ActionBarActivity {
         }
     }
 
-    public String GetCountryZipCode() {
-        String CountryID = "";
-        String CountryZipCode = "+";
-
-        TelephonyManager manager = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
-        //getNetworkCountryIso
-        CountryID = manager.getSimCountryIso().toUpperCase();
-        String[] rl = this.getResources().getStringArray(R.array.CountryCodes);
-        for (int i = 0; i < rl.length; i++) {
-            String[] g = rl[i].split(",");
-            if (g[1].trim().equals(CountryID.trim())) {
-                CountryZipCode += g[0];
-                break;
-            }
-        }
-        return CountryZipCode;
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

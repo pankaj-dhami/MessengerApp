@@ -5,8 +5,11 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
+import android.telephony.TelephonyManager;
 
+import com.example.pankaj.mychatapp.Model.TelephoneNumberModel;
 import com.example.pankaj.mychatapp.Model.UserModel;
+import com.example.pankaj.mychatapp.R;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -25,11 +28,11 @@ public class Common {
         this.context=context;
     }
 
-    public  ArrayList<UserModel> fetchContacts() {
+    public  ArrayList<TelephoneNumberModel> fetchContacts() {
 
         String phoneNumber = null;
         String email = null;
-        ArrayList<UserModel> friendList=new ArrayList<UserModel>();
+        ArrayList<TelephoneNumberModel> friendList=new ArrayList<TelephoneNumberModel>();
 
         Uri CONTENT_URI = ContactsContract.Contacts.CONTENT_URI;
         String _ID = ContactsContract.Contacts._ID;
@@ -70,8 +73,13 @@ public class Common {
                     while (phoneCursor.moveToNext()) {
                         phoneNumber = phoneCursor.getString(phoneCursor.getColumnIndex(NUMBER));
                         output.append("\n Phone number:" + phoneNumber);
-                        UserModel userModel=new UserModel();
+                        TelephoneNumberModel userModel=new TelephoneNumberModel();
                         userModel.Name=name;
+                        if(phoneNumber.startsWith("0"))
+                        {
+                            phoneNumber= GetCountryZipCode()+ phoneNumber.replace( phoneNumber.charAt(0) ,' ' ).trim();
+
+                        }
                         userModel.MobileNo=phoneNumber;
                         friendList.add(userModel);
                     }
@@ -119,5 +127,23 @@ public class Common {
             e.printStackTrace();
         }
         return  time;
+    }
+
+    public static String GetCountryZipCode() {
+        String CountryID = "";
+        String CountryZipCode = "";
+
+        TelephonyManager manager = (TelephonyManager) HubNotificationService.thisServiceContext.getSystemService(Context.TELEPHONY_SERVICE);
+        //getNetworkCountryIso
+        CountryID = manager.getSimCountryIso().toUpperCase();
+        String[] rl = HubNotificationService.thisServiceContext.getResources().getStringArray(R.array.CountryCodes);
+        for (int i = 0; i < rl.length; i++) {
+            String[] g = rl[i].split(",");
+            if (g[1].trim().equals(CountryID.trim())) {
+                CountryZipCode += g[0];
+                break;
+            }
+        }
+        return CountryZipCode;
     }
 }

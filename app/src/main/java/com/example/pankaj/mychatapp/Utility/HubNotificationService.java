@@ -14,6 +14,7 @@ import com.example.pankaj.mychatapp.Model.AppResultModel;
 import com.example.pankaj.mychatapp.Model.ChatMsgModel;
 import com.example.pankaj.mychatapp.Model.MsgModel;
 import com.example.pankaj.mychatapp.Model.SendMsgModel;
+import com.example.pankaj.mychatapp.Model.TelephoneNumberModel;
 import com.example.pankaj.mychatapp.Model.UserModel;
 import com.example.pankaj.mychatapp.R;
 import com.example.pankaj.mychatapp.WebApiRequest.APIHandler;
@@ -213,7 +214,7 @@ public class HubNotificationService extends Service {
         return null;
     }
 
-    public ArrayList<UserModel> updateNewFriendsList(ArrayList<UserModel> arrayContacts, int userID) {
+    public ArrayList<UserModel> updateNewFriendsList(ArrayList<TelephoneNumberModel> arrayContacts, int userID) {
         JSONArray jsonarr = null;
         final ArrayList<UserModel> resultList = new ArrayList<UserModel>();
         try {
