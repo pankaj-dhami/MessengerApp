@@ -29,7 +29,7 @@
         <item name="actionBarTabStyle">@style/Theme.Dark.Tab</item>-->
 
     </style>
-    <style name="Theme.Dark.Tab">
+    <style name="Theme.Dark.Tab" parent="Theme.Dark">
         <item name="android:background">@drawable/tab_bar_background</item>
     </style>
 

@@ -2,7 +2,7 @@
 <resources>
 <color name="formBgColor">#ff328332</color>
     <color name="ColorPrimary">#0E5D30</color>
-    <color name="ColorPrimaryDark">#00695C</color>
+    <color name="ColorPrimaryDark">#0E5D30</color>
     <color name="tabsScrollColor">#004D40</color>
     <color name="transparent" >#00000000</color>
     <color name="tab_highlight">#ff9ecfbf</color>

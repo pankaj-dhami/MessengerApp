@@ -108,11 +108,11 @@ public class HomeDash extends ActionBarActivity implements MaterialTabListener {
     private Drawable getIcon(int position) {
         switch(position) {
             case 0:
-                return res.getDrawable(R.drawable.ic_person_black_24dp);
+                return res.getDrawable(R.drawable.home_profile);
             case 1:
                 return res.getDrawable(R.drawable.ic_group_black_24dp);
             case 2:
-                return res.getDrawable(R.drawable.ic_notifications_off_white_24dp);
+                return res.getDrawable(R.drawable.chat_bubble);
         }
         return null;
     }

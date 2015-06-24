@@ -7,7 +7,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="#009688"
+        android:background="@color/ColorPrimary"
         />
 
     <com.example.pankaj.mychatapp.CustomUI.MaterialTabHost
@@ -15,7 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_below="@+id/toolbar"
-        app:primaryColor="#009688"
+        app:materialTabsPrimaryColor="@color/ColorPrimary"
         app:accentColor="#ffc400"
         app:hasIcons="true" />
 

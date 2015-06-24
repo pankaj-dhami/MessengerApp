@@ -64,7 +64,7 @@
         </activity>
         <activity
             android:name=".ChatBubbleActivity"
-            android:parentActivityName=".HomeActivity"
+            android:parentActivityName=".HomeDash"
             android:theme="@style/Theme.Dark" >
         </activity>
 
