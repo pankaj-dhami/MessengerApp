@@ -76,6 +76,7 @@ public class MyService extends Service {
     }
 
     public void publishFriendsListResults(ArrayList<UserModel> friendsList) {
+
        // FriendsList = friendsList;
         if (Tab1Activity_active) {
             Intent intent = new Intent("com.example.pankaj.mychatapp");

@@ -27,6 +27,7 @@ import com.example.pankaj.mychatapp.CustomUI.UserPicture;
 import com.example.pankaj.mychatapp.Model.AppResultModel;
 import com.example.pankaj.mychatapp.Model.UserModel;
 import com.example.pankaj.mychatapp.Utility.Common;
+import com.example.pankaj.mychatapp.Utility.HubNotificationService;
 import com.example.pankaj.mychatapp.Utility.LoadingControl;
 import com.example.pankaj.mychatapp.WebApiRequest.HttpManager;
 
@@ -106,7 +107,7 @@ public class RegistrationFormActivity extends ActionBarActivity {
         });
         mobileTextView = (AutoCompleteTextView) findViewById(R.id.txtmobileNo);
         txtCountryCode = (EditText) findViewById(R.id.txtCountryCode);
-        txtCountryCode.setText( "+" + Common.GetCountryZipCode());
+        txtCountryCode.setText( "+" + GetCountryZipCode());
         txbName = (EditText) findViewById(R.id.txbName);
         txbStatus = (EditText) findViewById(R.id.txbStatus);
 
@@ -114,7 +115,23 @@ public class RegistrationFormActivity extends ActionBarActivity {
         progressView = findViewById(R.id.register_progress);
         load = new LoadingControl(registerFormView, progressView);
     }
+    public  String GetCountryZipCode() {
+        String CountryID = "";
+        String CountryZipCode = "";
 
+        TelephonyManager manager = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
+        //getNetworkCountryIso
+        CountryID = manager.getSimCountryIso().toUpperCase();
+        String[] rl = this.getResources().getStringArray(R.array.CountryCodes);
+        for (int i = 0; i < rl.length; i++) {
+            String[] g = rl[i].split(",");
+            if (g[1].trim().equals(CountryID.trim())) {
+                CountryZipCode += g[0];
+                break;
+            }
+        }
+        return CountryZipCode;
+    }
     private void registerUser() {
         if (userRegisterTask != null) {
             return;
@@ -128,10 +145,10 @@ public class RegistrationFormActivity extends ActionBarActivity {
         String stauts = txbStatus.getText().toString();
 
 
-        Bitmap bitmap = ((BitmapDrawable) selectedImagePreview.getDrawable()).getBitmap();
+    /*    Bitmap bitmap = ((BitmapDrawable) selectedImagePreview.getDrawable()).getBitmap();
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-        imageByteArray = stream.toByteArray();
+        imageByteArray = stream.toByteArray();*/
 
         boolean cancelLogin = false;
         View focusView = null;
@@ -207,7 +224,7 @@ public class RegistrationFormActivity extends ActionBarActivity {
             }
         } else {
             // report failure
-            Toast.makeText(getApplicationContext(), "Failed to get intent data", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "No image selected", Toast.LENGTH_LONG).show();
             Log.d(RegistrationFormActivity.class.getSimpleName(), "Failed to get intent data, result code is " + resultCode);
         }
     }
@@ -252,12 +269,13 @@ public class RegistrationFormActivity extends ActionBarActivity {
             model.Name = name;
            model.Password="pankaj";
             model.MyStatus = stauts;
-            String sb = Base64.encodeToString(PicData, Base64.DEFAULT);
             model.Pic64Data = new ArrayList<String>();
-            int n = 0;
-            for (String str : sb.split("/"))
-            {
-                model.Pic64Data.add(str);
+            if (PicData!=null && PicData.length>0) {
+                String sb = Base64.encodeToString(PicData, Base64.DEFAULT);
+                int n = 0;
+                for (String str : sb.split("/")) {
+                    model.Pic64Data.add(str);
+                }
             }
            /* while (n != sb.length()) {
                 if (100 < sb.length()-n) {

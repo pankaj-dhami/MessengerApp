@@ -14,6 +14,9 @@ import android.support.v7.widget.Toolbar;
 import com.example.pankaj.mychatapp.CustomUI.MaterialTab;
 import com.example.pankaj.mychatapp.CustomUI.MaterialTabHost;
 import com.example.pankaj.mychatapp.CustomUI.MaterialTabListener;
+import com.example.pankaj.mychatapp.Utility.ApplicationConstants;
+import com.example.pankaj.mychatapp.Utility.Common;
+import com.example.pankaj.mychatapp.Utility.HubNotificationService;
 
 /**
  * Created by pankaj on 6/23/2015.
@@ -54,6 +57,10 @@ public class HomeDash extends ActionBarActivity implements MaterialTabListener {
                             .setTabListener(this)
             );
         }
+        HubNotificationService manager = HubNotificationService.thisServiceContext;
+        manager.updateNewFriendsList(
+                new Common(this).fetchContacts(),
+                ApplicationConstants.thisUser.UserID);
     }
     @Override
     public void onTabSelected(MaterialTab tab) {

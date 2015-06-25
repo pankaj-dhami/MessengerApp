@@ -78,7 +78,10 @@ public class Common {
                         if(phoneNumber.startsWith("0"))
                         {
                             phoneNumber= GetCountryZipCode()+ phoneNumber.replace( phoneNumber.charAt(0) ,' ' ).trim();
-
+                        }
+                        else if (phoneNumber.startsWith("+"))
+                        {
+                            phoneNumber= phoneNumber.replace( phoneNumber.charAt(0) ,' ' ).trim();
                         }
                         userModel.MobileNo=phoneNumber;
                         friendList.add(userModel);

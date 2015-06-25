@@ -35,8 +35,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Objects;
@@ -58,7 +63,9 @@ public class HubNotificationService extends Service {
 
     //region variables
     public static boolean ChatBubbleActivity_active;
+    public static boolean Tab1Activity_active;
     public static UserModel chatUser;
+
     //endregion
 
     public HubNotificationService() {
@@ -197,6 +204,31 @@ public class HubNotificationService extends Service {
         }
     }
 
+    public void publishFriendsListResults(ArrayList<UserModel> friendsList) {
+
+        if (friendsList!=null && friendsList.size()>0) {
+            SqlLiteDb db = new SqlLiteDb(thisServiceContext);
+            db.open();
+            ArrayList<UserModel> updatedFriends = new ArrayList<>();
+            for (UserModel newFriend : friendsList) {
+                UserModel existingFriend = db.getFriend(newFriend.UserID);
+                if(!existingFriend.PictureUrl.equalsIgnoreCase(newFriend.PictureUrl))
+                {
+                    updatedFriends.add(newFriend);
+                }
+            }
+            db.close();
+            doDownload(updatedFriends);
+        }
+
+        // FriendsList = friendsList;
+        if (Tab1Activity_active) {
+            Intent intent = new Intent("com.example.pankaj.mychatapp");
+            intent.putExtra("code", "friendsList");
+            sendBroadcast(intent);
+        }
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -241,19 +273,15 @@ public class HubNotificationService extends Service {
                             for (int i = 0; i < jsonarr.length(); i++) {
                                 JSONObject obj = jsonarr.getJSONObject(i);
                                 UserModel user = getUserModel(obj);
-                                if (user.PictureUrl != null && user.PictureUrl.length() > 0) {
-                                    byte[] decodedBytes = Base64.decode(user.PictureUrl, Base64.DEFAULT);
-                                    user.PicData = decodedBytes;
-                                }
                                 resultList.add(user);
-                                entity.createFriendsEntry(user);
+                                entity.updateFriends(user);
                             }
                             entity.close();
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
 
-                        MyService.myService.publishFriendsListResults(resultList);
+                        publishFriendsListResults(resultList);
                     }
                     return null;
                 }
@@ -287,11 +315,6 @@ public class HubNotificationService extends Service {
                             for (int i = 0; i < jsonarr.length(); i++) {
                                 JSONObject obj = jsonarr.getJSONObject(i);
                                 UserModel user = getUserModel(obj);
-                                    if (user.PictureUrl != null && user.PictureUrl.length() > 0) {
-                                        byte[] decodedBytes = Base64.decode(user.PictureUrl, Base64.DEFAULT);
-                                        user.PicData = decodedBytes;
-                                    }
-
                                 resultList.add(user);
                                 entity.updateFriends(user);
                             }
@@ -299,7 +322,7 @@ public class HubNotificationService extends Service {
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        MyService.myService.publishFriendsListResults(resultList);
+                        publishFriendsListResults(resultList);
                     }
                     return null;
                 }
@@ -347,6 +370,52 @@ public class HubNotificationService extends Service {
     public void sendMessageToUser(MsgModel msgModel, ChatMsgModel chatMsgModel) {
         Thread thread = new Thread(new SendMessageThread(msgModel, chatMsgModel));
         thread.start();
+    }
+
+    protected void doDownload(final ArrayList<UserModel> downloadModels) {
+
+        Thread dx = new Thread() {
+
+            public void run() {
+
+                for (UserModel model : downloadModels) {
+                    final String urlLink = model.PictureUrl;
+                    try {
+                        URL url = new URL(urlLink);
+                        URLConnection connection = url.openConnection();
+                        connection.connect();
+                        // this will be useful so that you can show a typical 0-100% progress bar
+                        int fileLength = connection.getContentLength();
+
+                        // download the file
+                        InputStream input = new BufferedInputStream(url.openStream());
+
+                        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+                        int nRead;
+                        byte[] data = new byte[16384];
+
+                        while ((nRead = input.read(data, 0, data.length)) != -1) {
+                            buffer.write(data, 0, nRead);
+                        }
+
+                        buffer.flush();
+                        model.PicData= buffer.toByteArray();
+                        input.close();
+                        SqlLiteDb entity=new SqlLiteDb(thisServiceContext);
+                        entity.open();
+                        entity.updateFriends(model);
+                        entity.close();
+                        publishFriendsListResults(null);
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        // Log.i("ERROR ON DOWNLOADING FILES", "ERROR IS" +e);
+                    }
+                }
+            }
+        };
+        dx.start();
+
     }
 }
 

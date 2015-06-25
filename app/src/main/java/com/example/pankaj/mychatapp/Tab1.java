@@ -68,14 +68,14 @@ public class Tab1 extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        MyService.Tab1Activity_active = true;
+        HubNotificationService.Tab1Activity_active = true;
         thisActivity.registerReceiver(receiver, new IntentFilter("com.example.pankaj.mychatapp"));
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        MyService.Tab1Activity_active = false;
+        HubNotificationService.Tab1Activity_active = false;
         thisActivity.unregisterReceiver(receiver);
     }
 
