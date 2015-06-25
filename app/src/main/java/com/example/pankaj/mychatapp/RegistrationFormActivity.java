@@ -182,8 +182,8 @@ public class RegistrationFormActivity extends ActionBarActivity {
                 try {
                     Bitmap bmp = new UserPicture(selectedImageUri, getContentResolver()).getBitmap();
                     ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                    bmp.compress(Bitmap.CompressFormat.PNG, 20, stream);
-                    bmp=Bitmap.createScaledBitmap(bmp,50,50,false);
+                    bmp.compress(Bitmap.CompressFormat.PNG, 5, stream);
+                   // bmp=Bitmap.createScaledBitmap(bmp,50,50,false);
                     imageByteArray = stream.toByteArray();
                     selectedImagePreview.setImageBitmap(bmp);
                 } catch (IOException e) {
