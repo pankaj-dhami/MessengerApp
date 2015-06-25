@@ -403,7 +403,7 @@ public class HubNotificationService extends Service {
                         input.close();
                         SqlLiteDb entity=new SqlLiteDb(thisServiceContext);
                         entity.open();
-                        entity.updateFriends(model);
+                        entity.updateFriendImage(model);
                         entity.close();
                         publishFriendsListResults(null);
 

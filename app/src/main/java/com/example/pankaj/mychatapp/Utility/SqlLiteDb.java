@@ -199,8 +199,8 @@ public class SqlLiteDb {
             cv.put("Name", userModel.Name);
             cv.put("MobileNo", userModel.MobileNo);
             cv.put("MyStatus", userModel.MyStatus);
-            cv.put("PictureUrl", userModel.PictureUrl);
-            cv.put("PicData", userModel.PicData);
+           // cv.put("PictureUrl", userModel.PictureUrl);
+           // cv.put("PicData", userModel.PicData);
             database.insert(DB_TABLE_FRIENDS, null, cv);
         } catch (Exception e) {
             e.printStackTrace();
@@ -259,6 +259,22 @@ public class SqlLiteDb {
                 cv.put("Name", userModel.Name);
                 cv.put("MobileNo", userModel.MobileNo);
                 cv.put("MyStatus", userModel.MyStatus);
+              //  cv.put("PictureUrl", userModel.PictureUrl);
+               // cv.put("PicData", userModel.PicData);
+                database.update(DB_TABLE_FRIENDS, cv, "UserID = " + userModel.UserID, null);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            createFriendsEntry(userModel);
+        }
+    }
+
+    public void updateFriendImage(UserModel userModel) {
+        UserModel existingUser = getFriend(userModel.UserID);
+        if (existingUser != null) {
+            try {
+                ContentValues cv = new ContentValues();
                 cv.put("PictureUrl", userModel.PictureUrl);
                 cv.put("PicData", userModel.PicData);
                 database.update(DB_TABLE_FRIENDS, cv, "UserID = " + userModel.UserID, null);
@@ -269,7 +285,6 @@ public class SqlLiteDb {
             createFriendsEntry(userModel);
         }
     }
-
     //endregion
 
 
