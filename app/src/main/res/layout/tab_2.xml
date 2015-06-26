@@ -1,14 +1,116 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Tab 2 says Hello :D"
-        android:id="@+id/textView"
-        android:textColor="@color/tabsScrollColor"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />
+    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <RelativeLayout
+
+                android:layout_width="match_parent"
+                android:layout_height="250dp">
+
+                <ImageView
+                    android:id="@+id/imgProfilePic"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_centerHorizontal="true"
+                    android:src="@drawable/nouser"
+                    android:textColor="@color/tabsScrollColor" />
+
+                <ToggleButton
+                    android:id="@+id/imgSavePic"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_alignBottom="@id/imgProfilePic"
+                    android:layout_alignParentTop="@id/imgProfilePic"
+                    android:layout_alignRight="@id/imgProfilePic"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginRight="20dp"
+                    android:textOn=""
+                    android:textOff=""
+                    android:background="@drawable/ic_edit"
+
+
+                    />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="20dp">
+
+                <EditText
+                    android:id="@+id/txtUserName"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:hint="Enter Name"
+                    android:text="pankaj dhami"
+                    android:textSize="18dp" />
+
+                <ToggleButton
+                    android:id="@+id/imgSaveName"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_alignParentTop="@id/txtUserName"
+                    android:layout_alignRight="@id/txtUserName"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginTop="10dp"
+                    android:textOn=""
+                    android:textOff=""
+                    android:background="@drawable/ic_save_check" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="20dp">
+
+                <EditText
+                    android:id="@+id/txtUserStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:layout_marginBottom="50dp"
+                    android:hint="Your status"
+                    android:text="pankaj dhami status"
+                    android:textSize="18dp" />
+
+                <ToggleButton
+                    android:id="@+id/imgSaveUserStatus"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_alignParentTop="@id/txtUserStatus"
+                    android:layout_alignRight="@id/txtUserStatus"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginTop="10dp"
+                    android:textOn=""
+                    android:textOff=""
+                    android:background="@drawable/ic_save_check"
+                    android:checked="false"
+
+
+
+                    />
+
+            </RelativeLayout>
+        </LinearLayout>
+    </ScrollView>
 </LinearLayout>
