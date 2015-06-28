@@ -13,104 +13,131 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
-
+            <ProgressBar android:id="@+id/login_progress"
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone" />
             <RelativeLayout
 
                 android:layout_width="match_parent"
-                android:layout_height="250dp">
+                android:layout_marginTop="10dp"
+                android:layout_height="300dp">
 
-                <ImageView
+                <com.example.pankaj.mychatapp.CustomUI.RoundedImageView
+                    android:src="@drawable/nouser"
                     android:id="@+id/imgProfilePic"
-                    android:layout_width="match_parent"
+                    android:layout_width="300dp"
                     android:layout_height="match_parent"
                     android:layout_centerHorizontal="true"
-                    android:src="@drawable/nouser"
-                    android:textColor="@color/tabsScrollColor" />
-
-                <ToggleButton
-                    android:id="@+id/imgSavePic"
+                    android:layout_centerVertical="true"
+                    android:background="@drawable/round_img_bg"
+                    android:scaleType="centerCrop" />
+                <Button
+                    android:id="@+id/btnCancelPic"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:layout_alignBottom="@id/imgProfilePic"
                     android:layout_alignParentTop="@id/imgProfilePic"
                     android:layout_alignRight="@id/imgProfilePic"
                     android:layout_marginBottom="10dp"
-                    android:layout_marginRight="20dp"
+                    android:layout_marginRight="50dp"
+                    android:background="@drawable/ic_cross"
+                    />
+                <ToggleButton
+                    android:id="@+id/btnSavePic"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_alignBottom="@id/imgProfilePic"
+                    android:layout_alignParentTop="@id/imgProfilePic"
+                    android:layout_alignRight="@id/imgProfilePic"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginRight="0dp"
                     android:textOn=""
                     android:textOff=""
                     android:background="@drawable/ic_edit"
-
-
                     />
             </RelativeLayout>
 
-            <RelativeLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
+            <LinearLayout
+                android:orientation="horizontal"
+                android:id="@+id/level2"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical|center_horizontal">
 
-                android:layout_marginRight="10dp"
-                android:layout_marginTop="20dp">
+                    <LinearLayout
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginRight="20dp"
+                        android:layout_marginTop="10dp"
 
-                <EditText
-                    android:id="@+id/txtUserName"
-                    android:layout_width="match_parent"
-                    android:layout_height="100dp"
-                    android:hint="Enter Name"
-                    android:text="pankaj dhami"
-                    android:textSize="18dp" />
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:text="Name : "
+                            />
+                        <AutoCompleteTextView
+                            android:id="@+id/txtUserName"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textEmailAddress"
+                            android:maxLines="1"
+                            android:hint="Enter your Name"
+                            android:layout_marginBottom="10dp"
+                            android:text="panka dhami"
+                            />
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:text="Update Status : "
+                            />
+                        <EditText android:id="@+id/txtUserStatus"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:maxLines="5"
+                            android:singleLine="false"
+                            android:layout_marginBottom="10dp"
+                            android:text="pankaj status"
+                           />
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="right"
+                            >
+                            <Button
+                                android:id="@+id/btnCancelUpdateText"
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:layout_gravity="right"
+                                android:layout_marginBottom="10dp"
+                                android:layout_marginRight="10dp"
+                                android:layout_marginTop="10dp"
+                                android:background="@drawable/ic_cross"
+                                android:checked="false"
+                                />
+                            <ToggleButton
+                                android:id="@+id/btnSaveUpdateText"
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:layout_gravity="right"
+                                android:layout_marginBottom="10dp"
+                                android:layout_marginRight="15dp"
+                                android:layout_marginTop="10dp"
+                                android:textOn=""
+                                android:textOff=""
+                                android:background="@drawable/ic_edit"
+                                android:checked="false"
+                                />
+                        </LinearLayout>
 
-                <ToggleButton
-                    android:id="@+id/imgSaveName"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_alignParentTop="@id/txtUserName"
-                    android:layout_alignRight="@id/txtUserName"
-                    android:layout_marginBottom="10dp"
-                    android:layout_marginRight="10dp"
-                    android:layout_marginTop="10dp"
-                    android:textOn=""
-                    android:textOff=""
-                    android:background="@drawable/ic_save_check" />
+                    </LinearLayout>
 
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-
-                android:layout_marginRight="10dp"
-                android:layout_marginTop="20dp">
-
-                <EditText
-                    android:id="@+id/txtUserStatus"
-                    android:layout_width="match_parent"
-                    android:layout_height="100dp"
-                    android:layout_marginBottom="50dp"
-                    android:hint="Your status"
-                    android:text="pankaj dhami status"
-                    android:textSize="18dp" />
-
-                <ToggleButton
-                    android:id="@+id/imgSaveUserStatus"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_alignParentTop="@id/txtUserStatus"
-                    android:layout_alignRight="@id/txtUserStatus"
-                    android:layout_marginBottom="10dp"
-                    android:layout_marginRight="10dp"
-                    android:layout_marginTop="10dp"
-                    android:textOn=""
-                    android:textOff=""
-                    android:background="@drawable/ic_save_check"
-                    android:checked="false"
-
-
-
-                    />
-
-            </RelativeLayout>
+            </LinearLayout>
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

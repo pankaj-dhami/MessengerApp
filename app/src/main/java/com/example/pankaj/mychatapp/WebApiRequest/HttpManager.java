@@ -67,8 +67,15 @@ public class HttpManager {
         return result;
     }
 
-    public static AppResultModel registerUser(UserModel userModel) throws Exception {
-        String uri = ApplicationConstants.RegisterAddress;
+    public static AppResultModel registerUser(UserModel userModel,int isUpdate) throws Exception {
+        String uri="";
+        if (isUpdate==0) {
+            uri = ApplicationConstants.RegisterAddress;
+        }
+        else
+        {
+            uri = ApplicationConstants.UpdateUser;
+        }
         AppResultModel result = new AppResultModel();  GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
 
@@ -91,7 +98,7 @@ public class HttpManager {
             result.IsValid = false;
         } else if (response.ResultCode == HttpURLConnection.HTTP_CONFLICT) {
             result.ResultCode = response.ResultCode;
-            result.RawResponse = "Mobile number already exists.";
+           // result.RawResponse = "Mobile number already exists.";
             result.IsValid = false;
         }
 

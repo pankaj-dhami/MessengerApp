@@ -3,7 +3,6 @@ package com.example.pankaj.mychatapp;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -26,8 +25,6 @@ import android.widget.Toast;
 import com.example.pankaj.mychatapp.CustomUI.UserPicture;
 import com.example.pankaj.mychatapp.Model.AppResultModel;
 import com.example.pankaj.mychatapp.Model.UserModel;
-import com.example.pankaj.mychatapp.Utility.Common;
-import com.example.pankaj.mychatapp.Utility.HubNotificationService;
 import com.example.pankaj.mychatapp.Utility.LoadingControl;
 import com.example.pankaj.mychatapp.WebApiRequest.HttpManager;
 
@@ -296,7 +293,7 @@ public class RegistrationFormActivity extends ActionBarActivity {
             // following try-catch just simulates network access
             try {
 
-                result = HttpManager.registerUser(model);
+                result = HttpManager.registerUser(model,0);
                 return result.IsValid;
             } catch (Exception e) {
                 return false;

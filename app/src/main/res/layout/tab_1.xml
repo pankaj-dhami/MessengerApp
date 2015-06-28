@@ -13,14 +13,18 @@
         android:focusableInTouchMode="false"
         >
 
-        <ListView xmlns:android="http://schemas.android.com/apk/res/android"
+       <!-- <ListView xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/listView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginBottom="0dp"
             android:layout_marginTop="0dp"
 
-            />
+            />-->
+        <com.github.ksoichiro.android.observablescrollview.ObservableListView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/listView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
     </RelativeLayout>
 </LinearLayout>

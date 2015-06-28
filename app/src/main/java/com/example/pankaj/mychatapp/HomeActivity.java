@@ -75,7 +75,7 @@ public class HomeActivity extends ActionBarActivity implements MaterialTabListen
         for (int i = 0; i < pagerAdapter.getCount(); i++) {
             tabHost.addTab(
                     tabHost.newTab()
-                            .setIcon(getIcon(i))
+                        //    .setIcon(getIcon(i),getPageTitle(i))
                             .setTabListener(this)
             );
         }

@@ -1,10 +1,7 @@
 package com.example.pankaj.mychatapp.Utility;
 
 import com.example.pankaj.mychatapp.Model.ChatMsgModel;
-import com.example.pankaj.mychatapp.Model.MsgModel;
 import com.example.pankaj.mychatapp.Model.UserModel;
-
-import java.util.ArrayList;
 
 /**
  * Created by pankaj on 6/5/2015.
@@ -15,6 +12,8 @@ public class ApplicationConstants  {
     public final static String host="http://msgapi.azurewebsites.net";
     public final static String TokenAddress=ServerAddress+"/token";
     public final static String RegisterAddress=ServerAddress+"/api/account/register";
+    public final static String UpdateUser=ServerAddress+"/api/account/UpdateUser";
+
 
     private static String token_type="bearer";
     private static String access_token="";

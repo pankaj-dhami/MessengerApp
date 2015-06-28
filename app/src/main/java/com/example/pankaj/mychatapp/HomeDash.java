@@ -18,6 +18,8 @@ import com.example.pankaj.mychatapp.Utility.ApplicationConstants;
 import com.example.pankaj.mychatapp.Utility.Common;
 import com.example.pankaj.mychatapp.Utility.HubNotificationService;
 
+import java.util.Locale;
+
 /**
  * Created by pankaj on 6/23/2015.
  */
@@ -26,13 +28,14 @@ public class HomeDash extends ActionBarActivity implements MaterialTabListener {
     private ViewPagerAdapter pagerAdapter;
     MaterialTabHost tabHost;
     private Resources res;
+    public static HomeDash homeDashActivity;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         res = this.getResources();
         // init toolbar (old action bar)
-
+        homeDashActivity=this;
         Toolbar toolbar = (Toolbar) this.findViewById(R.id.toolbar);
         toolbar.setTitleTextColor(Color.WHITE);
         this.setSupportActionBar(toolbar);
@@ -53,7 +56,7 @@ public class HomeDash extends ActionBarActivity implements MaterialTabListener {
         for (int i = 0; i < pagerAdapter.getCount(); i++) {
             tabHost.addTab(
                     tabHost.newTab()
-                            .setIcon(getIcon(i))
+                            .setIcon(getIcon(i),getPageTitle(i))
                             .setTabListener(this)
             );
         }
@@ -120,6 +123,18 @@ public class HomeDash extends ActionBarActivity implements MaterialTabListener {
                 return res.getDrawable(R.drawable.ic_group_black_24dp);
             case 2:
                 return res.getDrawable(R.drawable.chat_bubble);
+        }
+        return null;
+    }
+    public String getPageTitle(int position) {
+        Locale l = Locale.getDefault();
+        switch (position) {
+            case 0:
+                return getString(R.string.title_section1);
+            case 1:
+                return getString(R.string.title_section2);
+            case 2:
+                return getString(R.string.title_section3);
         }
         return null;
     }

@@ -6,9 +6,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Bundle;
 import android.os.IBinder;
-import android.util.Base64;
 
 import com.example.pankaj.mychatapp.Model.AppResultModel;
 import com.example.pankaj.mychatapp.Model.ChatMsgModel;
@@ -19,7 +17,6 @@ import com.example.pankaj.mychatapp.Model.UserModel;
 import com.example.pankaj.mychatapp.R;
 import com.example.pankaj.mychatapp.WebApiRequest.APIHandler;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
-import com.google.common.base.Joiner;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.microsoft.windowsazure.messaging.NotificationHub;
@@ -212,7 +209,7 @@ public class HubNotificationService extends Service {
             ArrayList<UserModel> updatedFriends = new ArrayList<>();
             for (UserModel newFriend : friendsList) {
                 UserModel existingFriend = db.getFriend(newFriend.UserID);
-                if(!existingFriend.PictureUrl.equalsIgnoreCase(newFriend.PictureUrl))
+                if(existingFriend.PictureUrl!=newFriend.PictureUrl)
                 {
                     updatedFriends.add(newFriend);
                 }

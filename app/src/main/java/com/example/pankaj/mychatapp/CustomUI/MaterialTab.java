@@ -19,6 +19,8 @@ import com.example.pankaj.mychatapp.R;
 
 import java.util.Locale;
 
+import at.markushi.ui.RevealColorView;
+
 @SuppressLint({ "InflateParams", "ClickableViewAccessibility" })
 /**
  * A simple Tab with Material Design style
@@ -32,8 +34,9 @@ public class MaterialTab implements View.OnTouchListener {
 	
 	private View completeView;
 	private ImageView icon;
+    private TextView textTabHeader;
 	private TextView text;
-	//private RevealColorView background;
+	private RevealColorView background;
 	private ImageView selector;
 	
 	private Resources res;
@@ -81,9 +84,10 @@ public class MaterialTab implements View.OnTouchListener {
                 completeView = LayoutInflater.from(ctx).inflate(R.layout.material_tab_icon, null);
 
                 icon = (ImageView) completeView.findViewById(R.id.icon);
+                textTabHeader=(TextView)completeView.findViewById(R.id.textTabHeader);
             }
 
-          //  background = (RevealColorView) completeView.findViewById(R.id.reveal);
+            background = (RevealColorView) completeView.findViewById(R.id.reveal);
             selector = (ImageView) completeView.findViewById(R.id.selector);
 
         }
@@ -136,13 +140,14 @@ public class MaterialTab implements View.OnTouchListener {
         return this;
 	}
 	
-	public MaterialTab setIcon(Drawable icon) {
+	public MaterialTab setIcon(Drawable icon,String text) {
         if(!hasIcon)
             throw new RuntimeException("You had setted tabs without icons, uses text instead icons");
 
 		iconDrawable = icon;
 		
 		this.icon.setImageDrawable(icon);
+        this.textTabHeader.setText(text);
 		this.setIconColor(this.iconColor);
 		return this;
 	}
@@ -152,9 +157,10 @@ public class MaterialTab implements View.OnTouchListener {
 		if(text != null)
 			this.text.setTextColor(Color.argb(0x99 ,Color.red(textColor), Color.green(textColor), Color.blue(textColor)));
 		// set 60% alpha to icon 
-		if(icon != null)
-			setIconAlpha(0x99);
-
+		if(icon != null) {
+            setIconAlpha(0x99);
+            this.textTabHeader.setTextColor(Color.argb(0x99, Color.red(textColor), Color.green(textColor), Color.blue(textColor)));
+        }
 		// set transparent the selector view
 		this.selector.setBackgroundColor(res.getColor(android.R.color.transparent));
 		
@@ -169,9 +175,10 @@ public class MaterialTab implements View.OnTouchListener {
 		if(text != null)
 			this.text.setTextColor(textColor);
 		// set 100% alpha to icon
-		if(icon != null)
-			setIconAlpha(0xFF);
-			
+		if(icon != null) {
+            setIconAlpha(0xFF);
+            this.textTabHeader.setTextColor(textColor);
+        }
 		// set accent color to selector view
 		this.selector.setBackgroundColor(accentColor);
 		

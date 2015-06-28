@@ -3,7 +3,6 @@ package com.example.pankaj.mychatapp.CustomUI;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
@@ -74,7 +73,7 @@ public class RoundedImageView extends ImageView {
         paint.setFilterBitmap(true);
         paint.setDither(true);
         canvas.drawARGB(0, 0, 0, 0);
-        paint.setColor(Color.parseColor("#BAB399"));
+            paint.setColor(color);
         canvas.drawCircle(radius / 2 + 0.7f,
                 radius / 2 + 0.7f, radius / 2 + 0.1f, paint);
         paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));

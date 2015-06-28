@@ -21,7 +21,7 @@
         android:paddingTop="10dp"
         android:paddingLeft="10dp"
         android:paddingBottom="10dp"
-        android:background="@drawable/chatbg"
+        android:background="@drawable/round_img_bg"
         android:scaleType="centerCrop" />
 
     <TextView

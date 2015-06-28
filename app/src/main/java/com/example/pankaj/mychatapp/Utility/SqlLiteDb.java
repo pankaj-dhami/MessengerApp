@@ -9,10 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import com.example.pankaj.mychatapp.Model.ChatMsgModel;
 import com.example.pankaj.mychatapp.Model.UserModel;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
 
 /**
  * public static final String
@@ -199,8 +196,8 @@ public class SqlLiteDb {
             cv.put("Name", userModel.Name);
             cv.put("MobileNo", userModel.MobileNo);
             cv.put("MyStatus", userModel.MyStatus);
-           // cv.put("PictureUrl", userModel.PictureUrl);
-           // cv.put("PicData", userModel.PicData);
+            cv.put("PictureUrl", "");
+            cv.put("PicData", userModel.PicData);
             database.insert(DB_TABLE_FRIENDS, null, cv);
         } catch (Exception e) {
             e.printStackTrace();
@@ -259,7 +256,7 @@ public class SqlLiteDb {
                 cv.put("Name", userModel.Name);
                 cv.put("MobileNo", userModel.MobileNo);
                 cv.put("MyStatus", userModel.MyStatus);
-              //  cv.put("PictureUrl", userModel.PictureUrl);
+               // cv.put("PictureUrl", "");
                // cv.put("PicData", userModel.PicData);
                 database.update(DB_TABLE_FRIENDS, cv, "UserID = " + userModel.UserID, null);
             } catch (Exception e) {
