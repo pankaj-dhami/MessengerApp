@@ -4,19 +4,25 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.Uri;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.pankaj.mychatapp.CustomUI.UserPicture;
 import com.example.pankaj.mychatapp.Model.ChatMsgModel;
 import com.example.pankaj.mychatapp.Utility.AppEnum;
 import com.example.pankaj.mychatapp.Utility.Common;
 import com.example.pankaj.mychatapp.Utility.HubNotificationService;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -81,7 +87,7 @@ public class ChatArrayAdapter extends ArrayAdapter {
         ChatMsgModel chatMessageObj = getItem(position);
         chatText = (TextView) row.findViewById(R.id.singleMessage);
         infoText = (TextView) row.findViewById(R.id.txtInfo);
-
+        ImageView singleImageMsg =(ImageView) row.findViewById(R.id.singleImageMsg);
         String textMessage = chatMessageObj.TextMessage;
         String infoTextStr = " " + Common.getTime(chatMessageObj.CreatedDate);
         if (chatMessageObj.IsMyMsg == AppEnum.SEND_BY_ME) {
@@ -106,6 +112,18 @@ public class ChatArrayAdapter extends ArrayAdapter {
             singleMessageContainer.setBackgroundColor(Color.parseColor("#C4C4C4"));
         } else {
             singleMessageContainer.setBackgroundColor(Color.parseColor("#00000000"));
+        }
+        if (!TextUtils.isEmpty(chatMessageObj.PictureUrl))
+        {
+            try {
+                Uri selectedImageUri = Uri.parse(chatMessageObj.PictureUrl);
+                Bitmap bmp = new UserPicture(selectedImageUri,HubNotificationService.thisServiceContext.getContentResolver()).getBitmap();
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                bmp.compress(Bitmap.CompressFormat.JPEG, 5, stream);
+                singleImageMsg.setImageBitmap(bmp);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         chatText.setText(textMessage);
         infoText.setText(infoTextStr);

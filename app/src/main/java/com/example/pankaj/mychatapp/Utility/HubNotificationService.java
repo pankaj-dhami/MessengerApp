@@ -414,56 +414,111 @@ public class HubNotificationService extends Service {
         dx.start();
 
     }
-}
 
-class SendMessageThread implements Runnable {
-    SendMsgModel msg = new SendMsgModel();
-    ChatMsgModel chatMsgModel;
+    class SendMessageThread implements Runnable {
+        SendMsgModel msg = new SendMsgModel();
+        ChatMsgModel chatMsgModel;
 
-    public SendMessageThread(MsgModel msgModel, ChatMsgModel chatMsgModel) {
-        SqlLiteDb entity = new SqlLiteDb(HubNotificationService.thisServiceContext);
-        entity.open();
-        msg.FromUser = entity.getUser();
-        msg.Message = msgModel;
-        entity.close();
-        this.chatMsgModel = chatMsgModel;
+        public SendMessageThread(MsgModel msgModel, ChatMsgModel chatMsgModel) {
+            SqlLiteDb entity = new SqlLiteDb(HubNotificationService.thisServiceContext);
+            entity.open();
+            msg.FromUser = entity.getUser();
+            msg.Message = msgModel;
+            entity.close();
+            this.chatMsgModel = chatMsgModel;
 
-    }
+        }
 
-    @Override
-    public void run() {
-        new AsyncTask<Objects, Objects, Objects>() {
-            @Override
-            protected Objects doInBackground(Objects... params) {
+        @Override
+        public void run() {
+            new AsyncTask<Objects, Objects, Objects>() {
+                @Override
+                protected Objects doInBackground(Objects... params) {
 
-                GsonBuilder builder = new GsonBuilder();
-                Gson gson = builder.create();
-                final String query = gson.toJson(msg);
-                ChatMsgModel finalMsg = chatMsgModel;
-                int n = 0;
-                int resultCode = 0;
-                while (n < 2) {
-                    AppResultModel response = APIHandler.createPost(ApplicationConstants.ServerAddress + "/api/Notifications/SendMessage",
-                            query, ApplicationConstants.contentTypeJson);
-                    resultCode = response.ResultCode;
-                    if (response.ResultCode == HttpURLConnection.HTTP_OK)//successful
-                    {
-                        finalMsg.IsSendDelv = AppEnum.SEND;
-                        break;
+                    GsonBuilder builder = new GsonBuilder();
+                    Gson gson = builder.create();
+                    final String query = gson.toJson(msg);
+                    ChatMsgModel finalMsg = chatMsgModel;
+                    int n = 0;
+                    int resultCode = 0;
+                    while (n < 2) {
+                        AppResultModel response = APIHandler.createHttpPost
+                                (ApplicationConstants.ServerAddress + "/api/Notifications/SendMessage",
+                                        query, ApplicationConstants.contentTypeJson, 20000);
+                        resultCode = response.ResultCode;
+                        if (response.ResultCode == HttpURLConnection.HTTP_OK)//successful
+                        {
+                            finalMsg.IsSendDelv = AppEnum.SEND;
+                            break;
+                        }
+                        n++;
                     }
-                    n++;
-                }
-                if (n == 2 && resultCode != 200) {
-                    finalMsg.IsSendDelv = AppEnum.UNDELIVERED;
-                }
-                SqlLiteDb entity = new SqlLiteDb(HubNotificationService.thisServiceContext);
-                entity.open();
-                entity.updateChatMsg(finalMsg);
-                entity.close();
-                HubNotificationService.thisServiceContext.publishMessageResults(finalMsg, AppEnum.MsgSendNotify, false);
+                    if (n == 2 && resultCode != 200) {
+                        finalMsg.IsSendDelv = AppEnum.UNDELIVERED;
+                    }
+                    SqlLiteDb entity = new SqlLiteDb(HubNotificationService.thisServiceContext);
+                    entity.open();
+                    entity.updateChatMsg(finalMsg);
+                    entity.close();
+                    HubNotificationService.thisServiceContext.publishMessageResults(finalMsg, AppEnum.MsgSendNotify, false);
 
-                return null;
-            }
-        }.execute(null, null, null);
+                    return null;
+                }
+            }.execute(null, null, null);
+        }
+    }
+
+    private class SendImageMessageThread implements Runnable {
+        SendMsgModel msg = new SendMsgModel();
+        ChatMsgModel chatMsgModel;
+
+        public SendImageMessageThread(MsgModel msgModel, ChatMsgModel chatMsgModel) {
+            SqlLiteDb entity = new SqlLiteDb(HubNotificationService.thisServiceContext);
+            entity.open();
+            msg.FromUser = entity.getUser();
+            msg.Message = msgModel;
+            entity.close();
+            this.chatMsgModel = chatMsgModel;
+
+        }
+
+        @Override
+        public void run() {
+            new AsyncTask<Objects, Objects, Objects>() {
+                @Override
+                protected Objects doInBackground(Objects... params) {
+
+                    GsonBuilder builder = new GsonBuilder();
+                    Gson gson = builder.create();
+                    final String query = gson.toJson(msg);
+                    ChatMsgModel finalMsg = chatMsgModel;
+                    int n = 0;
+                    int resultCode = 0;
+                    while (n < 5) {
+                        AppResultModel response = APIHandler.createHttpPost
+                                (ApplicationConstants.ServerAddress + "/api/Notifications/SendMessage",
+                                        query, ApplicationConstants.contentTypeJson,20000);
+                        resultCode = response.ResultCode;
+                        if (response.ResultCode == HttpURLConnection.HTTP_OK)//successful
+                        {
+                            finalMsg.IsSendDelv = AppEnum.SEND;
+                            break;
+                        }
+                        n++;
+                    }
+                    if (n == 2 && resultCode != 200) {
+                        finalMsg.IsSendDelv = AppEnum.UNDELIVERED;
+                    }
+                    SqlLiteDb entity = new SqlLiteDb(HubNotificationService.thisServiceContext);
+                    entity.open();
+                    entity.updateChatMsg(finalMsg);
+                    entity.close();
+                    HubNotificationService.thisServiceContext.publishMessageResults(finalMsg, AppEnum.MsgSendNotify, false);
+
+                    return null;
+                }
+            }.execute(null, null, null);
+        }
     }
 }
+

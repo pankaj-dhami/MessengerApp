@@ -24,7 +24,13 @@ public class ApplicationConstants  {
     public final static String msgSendToken="?";
     public final static String msgDeliverToken="??";
 
+    // this is the action code we use in our intent,
+    // this way we know we're looking at the response from our own action
+    public static final int SELECT_SINGLE_PICTURE = 101;
 
+    public static final int SELECT_MULTIPLE_PICTURE = 201;
+
+    public static final String IMAGE_TYPE = "image/*";
 
     public static  UserModel thisUser;
     public static ChatMsgModel msgModel;

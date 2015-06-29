@@ -10,11 +10,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.DataSetObserver;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.ActionMode;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
@@ -33,10 +37,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.pankaj.mychatapp.CustomUI.RoundedImageView;
+import com.example.pankaj.mychatapp.CustomUI.UserPicture;
 import com.example.pankaj.mychatapp.Model.ChatMsgModel;
 import com.example.pankaj.mychatapp.Model.MsgModel;
 import com.example.pankaj.mychatapp.Model.UserModel;
 import com.example.pankaj.mychatapp.Utility.AppEnum;
+import com.example.pankaj.mychatapp.Utility.ApplicationConstants;
 import com.example.pankaj.mychatapp.Utility.Common;
 import com.example.pankaj.mychatapp.Utility.HubNotificationService;
 import com.example.pankaj.mychatapp.Utility.SqlLiteDb;
@@ -44,6 +50,8 @@ import com.example.pankaj.mychatapp.Utility.SqlLiteDb;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class ChatBubbleActivity extends ActionBarActivity implements ActionMode.Callback {
@@ -53,6 +61,7 @@ public class ChatBubbleActivity extends ActionBarActivity implements ActionMode.
     private ListView listView;
     private EditText chatText;
     private Button buttonSend;
+    private Button buttonAttachment;
     int userID;
     String mobile;
     UserModel thisChatUser;
@@ -98,7 +107,28 @@ public class ChatBubbleActivity extends ActionBarActivity implements ActionMode.
 
         setContentView(R.layout.activity_chat);
 
+        //region button click events
+
         buttonSend = (Button) findViewById(R.id.buttonSend);
+        buttonAttachment = (Button) findViewById(R.id.buttonAttachment);
+
+        buttonSend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View arg0) {
+                sendChatMessage(chatText.getText().toString(), "");
+            }
+        });
+        buttonAttachment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.setType(ApplicationConstants.IMAGE_TYPE);
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(Intent.createChooser(intent,
+                        getString(R.string.select_picture)), ApplicationConstants.SELECT_MULTIPLE_PICTURE);
+            }
+        });
+        //endregion
 
         listView = (ListView) findViewById(R.id.listViewChat);
 
@@ -109,15 +139,9 @@ public class ChatBubbleActivity extends ActionBarActivity implements ActionMode.
         chatText.setOnKeyListener(new OnKeyListener() {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    return sendChatMessage();
+                    return    sendChatMessage(chatText.getText().toString(), "");
                 }
                 return false;
-            }
-        });
-        buttonSend.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View arg0) {
-                sendChatMessage();
             }
         });
 
@@ -202,6 +226,54 @@ public class ChatBubbleActivity extends ActionBarActivity implements ActionMode.
 
     }
 
+    //region open file chooser code
+    private void sendAttachmentMessage( ArrayList<Parcelable> list) {
+
+        if (list != null) {
+            for (Parcelable parcel : list) {
+                Uri uri = (Uri) parcel;
+                sendChatMessage(chatText.getText().toString(),uri.toString());
+                // handle the images one by one here
+            }
+        }
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            if (requestCode == ApplicationConstants.SELECT_SINGLE_PICTURE) {
+
+                Uri selectedImageUri = data.getData();
+                try {
+                    Bitmap bmp = new UserPicture(selectedImageUri, getContentResolver()).getBitmap();
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    bmp.compress(Bitmap.CompressFormat.JPEG, 5, stream);
+                    // bmp=Bitmap.createScaledBitmap(bmp,50,50,false);
+                    //  imageByteArray = stream.toByteArray();
+                    //  selectedImagePreview.setImageBitmap(bmp);
+                } catch (IOException e) {
+                    Log.e(RegisterActivity.class.getSimpleName(), "Failed to load image", e);
+                }
+                // original code
+//                String selectedImagePath = getPath(selectedImageUri);
+//                selectedImagePreview.setImageURI(selectedImageUri);
+            } else if (requestCode == ApplicationConstants.SELECT_MULTIPLE_PICTURE) {
+                //And in the Result handling check for that parameter:
+                if (Intent.ACTION_SEND_MULTIPLE.equals(data.getAction())
+                        && data.hasExtra(Intent.EXTRA_STREAM)) {
+                    // retrieve a collection of selected images
+                    ArrayList<Parcelable> list = data.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+                    // iterate over these images
+                    sendAttachmentMessage(list);
+                }
+            }
+        } else {
+            // report failure
+            Toast.makeText(getApplicationContext(), "No image selected", Toast.LENGTH_LONG).show();
+            Log.d(RegistrationFormActivity.class.getSimpleName(), "Failed to get intent data, result code is " + resultCode);
+        }
+    }
+    //endregion
+
     public ChatMsgModel getSelectedItem(long _id) {
         for (ChatMsgModel item : selectedItems) {
             if (item._id == _id)
@@ -212,11 +284,12 @@ public class ChatBubbleActivity extends ActionBarActivity implements ActionMode.
     }
 
     //region send receive methods
-    private boolean sendChatMessage() {
+    private boolean sendChatMessage(String msgText,String attachmentUri) {
 
         MsgModel msgModel = new MsgModel();
         msgModel.UserModel = thisChatUser;
-        msgModel.TextMessage = chatText.getText().toString();
+        msgModel.TextMessage = msgText;
+        msgModel.AttachmentUrl=attachmentUri;
         ChatMsgModel chatMsgModel = new ChatMsgModel(false, 0, thisChatUser.UserID, thisChatUser.Name, thisChatUser.MobileNo
                 , msgModel.TextMessage, msgModel.AttachmentUrl, msgModel.AttachmentData
                 , AppEnum.SEND_BY_ME, AppEnum.Trying_SEND);

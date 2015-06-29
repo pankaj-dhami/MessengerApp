@@ -10,8 +10,13 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 
 import java.io.BufferedReader;
@@ -38,8 +43,8 @@ public class APIHandler {
             con.setDoOutput(true); // Triggers POST.
             con.setRequestProperty("Content-Type", contentType);
             con.setRequestMethod("POST");
-           // con.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + BOUNDARY);
-           // con.setRequestProperty("Accept", "text/json");
+            // con.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + BOUNDARY);
+            // con.setRequestProperty("Accept", "text/json");
             DataOutputStream wr = new DataOutputStream(con.getOutputStream());
             wr.writeBytes(query);
             wr.flush();
@@ -183,6 +188,45 @@ public class APIHandler {
         return result;
 
     }
+
+    public synchronized static AppResultModel createHttpPost(String uri, String query, String contentType,int timeout) {
+        HttpClient httpClient;
+        String raw = "";
+        int responseCode = 0;
+        HttpParams httpParameters = new BasicHttpParams();
+        // Set the timeout in milliseconds until a connection is established.
+        // The default value is zero, that means the timeout is not used.
+        int timeoutConnection = timeout;
+        HttpConnectionParams.setConnectionTimeout(httpParameters, timeoutConnection);
+        // Set the default socket timeout (SO_TIMEOUT)
+        // in milliseconds which is the timeout for waiting for data.
+        int timeoutSocket = timeout;
+        HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
+        httpClient = new DefaultHttpClient(httpParameters);
+        try {
+            HttpPost request = new HttpPost(uri);
+            request.setEntity(new StringEntity(query.toString()));
+            // request.addHeader("Authorization", "Basic "+authorizationHeader);
+
+            HttpResponse response = httpClient.execute(request);
+            if ((responseCode = response.getStatusLine().getStatusCode()) != HttpStatus.SC_OK) {
+                Log.e("RegisterClient", "Error creating registrationId: " + response.getStatusLine().getStatusCode());
+                //  throw new RuntimeException("Error creating Notification Hubs registrationId");
+            }
+            raw = EntityUtils.toString(response.getEntity());
+
+
+        } catch (Exception ex) {
+            System.out.println(ex);
+        }
+        AppResultModel result = new AppResultModel();
+        result.ResultCode = responseCode;
+        result.RawResponse = raw;
+        return result;
+    }
+
+
+
 
 
 }
