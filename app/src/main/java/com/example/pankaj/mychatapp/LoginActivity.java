@@ -307,6 +307,7 @@ public class LoginActivity extends Activity implements LoaderManager.LoaderCallb
             }
         }
         //sfsdfsdf
+        //
 
         @Override
         protected void onCancelled() {
