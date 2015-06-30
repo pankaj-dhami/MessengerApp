@@ -63,6 +63,7 @@ public class ChatBubbleActivity extends ActionBarActivity implements ActionMode.
     private Button buttonSend;
     private Button buttonAttachment;
     int userID;
+    //sdfsdfsfsdf
     String mobile;
     UserModel thisChatUser;
     Intent intent;
