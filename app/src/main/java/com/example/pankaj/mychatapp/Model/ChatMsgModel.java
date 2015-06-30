@@ -3,6 +3,8 @@ package com.example.pankaj.mychatapp.Model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.ArrayList;
+
 /**
  * Created by pankaj.dhami on 6/16/2015.
  */
@@ -20,6 +22,7 @@ public class ChatMsgModel implements Parcelable {
     public String CreatedDate;
     public boolean left;
     public boolean isChecked;
+    public ArrayList<String> Pic64Data;
 
     public ChatMsgModel(boolean left,long _id, int userID, String name, String mobileNo, String textMessage, String pictureUrl, byte[] picData, int isMyMsg, int isSendDelv) {
         this. _id=_id;

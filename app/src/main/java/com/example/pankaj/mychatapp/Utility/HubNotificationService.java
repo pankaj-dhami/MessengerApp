@@ -5,9 +5,14 @@ import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.IBinder;
+import android.text.TextUtils;
+import android.util.Base64;
 
+import com.example.pankaj.mychatapp.CustomUI.UserPicture;
 import com.example.pankaj.mychatapp.Model.AppResultModel;
 import com.example.pankaj.mychatapp.Model.ChatMsgModel;
 import com.example.pankaj.mychatapp.Model.MsgModel;
@@ -203,14 +208,13 @@ public class HubNotificationService extends Service {
 
     public void publishFriendsListResults(ArrayList<UserModel> friendsList) {
 
-        if (friendsList!=null && friendsList.size()>0) {
+        if (friendsList != null && friendsList.size() > 0) {
             SqlLiteDb db = new SqlLiteDb(thisServiceContext);
             db.open();
             ArrayList<UserModel> updatedFriends = new ArrayList<>();
             for (UserModel newFriend : friendsList) {
                 UserModel existingFriend = db.getFriend(newFriend.UserID);
-                if(existingFriend.PictureUrl!=newFriend.PictureUrl)
-                {
+                if (existingFriend.PictureUrl != newFriend.PictureUrl) {
                     updatedFriends.add(newFriend);
                 }
             }
@@ -365,8 +369,15 @@ public class HubNotificationService extends Service {
     }
 
     public void sendMessageToUser(MsgModel msgModel, ChatMsgModel chatMsgModel) {
-        Thread thread = new Thread(new SendMessageThread(msgModel, chatMsgModel));
-        thread.start();
+
+        if (TextUtils.isEmpty(chatMsgModel.PictureUrl)) {
+            Thread thread = new Thread(new SendMessageThread(msgModel, chatMsgModel));
+            thread.start();
+        }
+        else{
+            Thread thread = new Thread(new SendImageMessageThread(msgModel, chatMsgModel));
+            thread.start();
+        }
     }
 
     protected void doDownload(final ArrayList<UserModel> downloadModels) {
@@ -396,9 +407,9 @@ public class HubNotificationService extends Service {
                         }
 
                         buffer.flush();
-                        model.PicData= buffer.toByteArray();
+                        model.PicData = buffer.toByteArray();
                         input.close();
-                        SqlLiteDb entity=new SqlLiteDb(thisServiceContext);
+                        SqlLiteDb entity = new SqlLiteDb(thisServiceContext);
                         entity.open();
                         entity.updateFriendImage(model);
                         entity.close();
@@ -473,6 +484,26 @@ public class HubNotificationService extends Service {
         ChatMsgModel chatMsgModel;
 
         public SendImageMessageThread(MsgModel msgModel, ChatMsgModel chatMsgModel) {
+
+            try {
+                Uri selectedImageUri = Uri.parse( msgModel.AttachmentUrl);
+                Bitmap bmp = new UserPicture(selectedImageUri,thisServiceContext.getContentResolver()).getBitmap();
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                bmp.compress(Bitmap.CompressFormat.JPEG, 20, stream);
+                byte[]  imageByteArray = stream.toByteArray();
+                msgModel.Pic64Data = new ArrayList<String>();
+                if (imageByteArray!=null && imageByteArray.length>0) {
+                    String sb = Base64.encodeToString(imageByteArray, Base64.DEFAULT);
+                    int n = 0;
+                    for (String str : sb.split("/")) {
+                        msgModel.Pic64Data.add(str);
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
             SqlLiteDb entity = new SqlLiteDb(HubNotificationService.thisServiceContext);
             entity.open();
             msg.FromUser = entity.getUser();
@@ -494,10 +525,10 @@ public class HubNotificationService extends Service {
                     ChatMsgModel finalMsg = chatMsgModel;
                     int n = 0;
                     int resultCode = 0;
-                    while (n < 5) {
+                    while (n < 3) {
                         AppResultModel response = APIHandler.createHttpPost
                                 (ApplicationConstants.ServerAddress + "/api/Notifications/SendMessage",
-                                        query, ApplicationConstants.contentTypeJson,20000);
+                                        query, ApplicationConstants.contentTypeJson, 20000);
                         resultCode = response.ResultCode;
                         if (response.ResultCode == HttpURLConnection.HTTP_OK)//successful
                         {
@@ -506,7 +537,7 @@ public class HubNotificationService extends Service {
                         }
                         n++;
                     }
-                    if (n == 2 && resultCode != 200) {
+                    if (n == 3 && resultCode != 200) {
                         finalMsg.IsSendDelv = AppEnum.UNDELIVERED;
                     }
                     SqlLiteDb entity = new SqlLiteDb(HubNotificationService.thisServiceContext);

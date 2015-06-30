@@ -119,7 +119,7 @@ public class ChatArrayAdapter extends ArrayAdapter {
                 Uri selectedImageUri = Uri.parse(chatMessageObj.PictureUrl);
                 Bitmap bmp = new UserPicture(selectedImageUri,HubNotificationService.thisServiceContext.getContentResolver()).getBitmap();
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                bmp.compress(Bitmap.CompressFormat.JPEG, 5, stream);
+                bmp.compress(Bitmap.CompressFormat.JPEG, 20, stream);
                 singleImageMsg.setImageBitmap(bmp);
             } catch (IOException e) {
                 e.printStackTrace();

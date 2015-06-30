@@ -17,13 +17,35 @@
             android:id="@+id/singleMessageWithText"
             android:background="@drawable/in_message_bg"
             >
-            <ImageView
+           <!-- <ImageView
                 android:id="@+id/singleImageMsg"
                 android:layout_width="200dp"
                 android:layout_height="150dp"
                 android:src="@drawable/chatbg2"
                 android:scaleType="centerCrop"
-                />
+                />-->
+            <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <ImageView
+                    android:id="@+id/singleImageMsg"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+
+                    android:scaleType="fitXY"
+                    android:src="@drawable/chatbg2" />
+
+                <ProgressBar
+                    android:id="@+id/singleImageMsgProgress"
+                    style="?android:attr/progressBarStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="150dp"
+                    android:visibility="visible" />
+
+            </FrameLayout>
             <TextView
                 android:id="@+id/singleMessage"
                 android:layout_width="wrap_content"
