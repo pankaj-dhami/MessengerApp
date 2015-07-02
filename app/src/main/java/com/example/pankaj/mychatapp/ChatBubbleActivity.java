@@ -4,6 +4,7 @@ package com.example.pankaj.mychatapp;
  * Created by pankaj on 6/8/2015.
  */
 
+import android.app.Activity;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -14,6 +15,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Parcelable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -32,10 +34,16 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ViewSwitcher;
 
+import com.example.pankaj.mychatapp.CustomUI.Action;
+import com.example.pankaj.mychatapp.CustomUI.CustomGallery;
+import com.example.pankaj.mychatapp.CustomUI.GalleryAdapter;
 import com.example.pankaj.mychatapp.CustomUI.RoundedImageView;
 import com.example.pankaj.mychatapp.CustomUI.UserPicture;
 import com.example.pankaj.mychatapp.Model.ChatMsgModel;
@@ -46,6 +54,11 @@ import com.example.pankaj.mychatapp.Utility.ApplicationConstants;
 import com.example.pankaj.mychatapp.Utility.Common;
 import com.example.pankaj.mychatapp.Utility.HubNotificationService;
 import com.example.pankaj.mychatapp.Utility.SqlLiteDb;
+import com.nostra13.universalimageloader.cache.memory.impl.WeakMemoryCache;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -55,8 +68,22 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class ChatBubbleActivity extends ActionBarActivity implements ActionMode.Callback {
-    private static final String TAG = "ChatActivity";
 
+    //region image chooser variables
+    GridView gridGallery;
+    Handler handler;
+    GalleryAdapter adapter;
+
+    ImageView imgSinglePick;
+    Button btnGalleryPick;
+    Button btnGalleryPickMul;
+
+    String action;
+    ViewSwitcher viewSwitcher;
+    ImageLoader imageLoader;
+    //endregion
+
+    private static final String TAG = "ChatActivity";
     private ChatArrayAdapter chatArrayAdapter;
     private ListView listView;
     private EditText chatText;
@@ -121,12 +148,8 @@ public class ChatBubbleActivity extends ActionBarActivity implements ActionMode.
         buttonAttachment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent();
-                intent.setType(ApplicationConstants.IMAGE_TYPE);
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-                startActivityForResult(Intent.createChooser(intent,
-                        getString(R.string.select_picture)), ApplicationConstants.SELECT_MULTIPLE_PICTURE);
+                Intent i = new Intent(Action.ACTION_MULTIPLE_PICK);
+                startActivityForResult(i, 200);
             }
         });
         //endregion
@@ -228,6 +251,59 @@ public class ChatBubbleActivity extends ActionBarActivity implements ActionMode.
     }
 
     //region open file chooser code
+
+    private void initImageLoader() {
+        DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
+                .cacheOnDisc().imageScaleType(ImageScaleType.EXACTLY_STRETCHED)
+                .bitmapConfig(Bitmap.Config.RGB_565).build();
+        ImageLoaderConfiguration.Builder builder = new ImageLoaderConfiguration.Builder(
+                this).defaultDisplayImageOptions(defaultOptions).memoryCache(
+                new WeakMemoryCache());
+
+        ImageLoaderConfiguration config = builder.build();
+        imageLoader = ImageLoader.getInstance();
+        imageLoader.init(config);
+    }
+
+    private void init() {
+
+        handler = new Handler();
+        gridGallery = (GridView) findViewById(R.id.gridGallery);
+        gridGallery.setFastScrollEnabled(true);
+        adapter = new GalleryAdapter(getApplicationContext(), imageLoader);
+        adapter.setMultiplePick(false);
+        gridGallery.setAdapter(adapter);
+
+        viewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
+        viewSwitcher.setDisplayedChild(1);
+
+        imgSinglePick = (ImageView) findViewById(R.id.imgSinglePick);
+
+        btnGalleryPick = (Button) findViewById(R.id.btnGalleryPick);
+        btnGalleryPick.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+
+                Intent i = new Intent(Action.ACTION_PICK);
+                startActivityForResult(i, 100);
+
+            }
+        });
+
+        btnGalleryPickMul = (Button) findViewById(R.id.btnGalleryPickMul);
+        btnGalleryPickMul.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(Action.ACTION_MULTIPLE_PICK);
+                startActivityForResult(i, 200);
+            }
+        });
+
+    }
+
+
     private void sendAttachmentMessage( ArrayList<Parcelable> list) {
 
         if (list != null) {
@@ -239,7 +315,7 @@ public class ChatBubbleActivity extends ActionBarActivity implements ActionMode.
         }
     }
 
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult1(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
             if (requestCode == ApplicationConstants.SELECT_SINGLE_PICTURE) {
 
@@ -259,18 +335,47 @@ public class ChatBubbleActivity extends ActionBarActivity implements ActionMode.
 //                selectedImagePreview.setImageURI(selectedImageUri);
             } else if (requestCode == ApplicationConstants.SELECT_MULTIPLE_PICTURE) {
                 //And in the Result handling check for that parameter:
-                if (Intent.ACTION_SEND_MULTIPLE.equals(data.getAction())
-                        && data.hasExtra(Intent.EXTRA_STREAM)) {
+              //  if (Intent.ACTION_SEND_MULTIPLE.equals(data.getAction())
+              //          && data.hasExtra(Intent.EXTRA_STREAM)) {
                     // retrieve a collection of selected images
+                ArrayList<String> paths = data.getStringArrayListExtra
+                        (Intent.EXTRA_STREAM);
                     ArrayList<Parcelable> list = data.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
                     // iterate over these images
                     sendAttachmentMessage(list);
-                }
+               // }
             }
         } else {
             // report failure
             Toast.makeText(getApplicationContext(), "No image selected", Toast.LENGTH_LONG).show();
             Log.d(RegistrationFormActivity.class.getSimpleName(), "Failed to get intent data, result code is " + resultCode);
+        }
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 100 && resultCode == Activity.RESULT_OK) {
+           // adapter.clear();
+
+          //  viewSwitcher.setDisplayedChild(1);
+            String single_path = data.getStringExtra("single_path");
+          //  imageLoader.displayImage("file://" + single_path, imgSinglePick);
+
+        } else if (requestCode == 200 && resultCode == Activity.RESULT_OK) {
+            String[] all_path = data.getStringArrayExtra("all_path");
+
+            ArrayList<CustomGallery> dataT = new ArrayList<CustomGallery>();
+
+            for (String string : all_path) {
+                CustomGallery item = new CustomGallery();
+                item.sdcardPath = string;
+
+                dataT.add(item);
+            }
+
+           // viewSwitcher.setDisplayedChild(0);
+          //  adapter.addAll(dataT);
         }
     }
     //endregion

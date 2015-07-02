@@ -170,7 +170,9 @@ public class SplashScreen extends Activity {
 
     public void onStartClick(View v)
     {
-        startActivity(new Intent(SplashScreen.this, RegistrationFormActivity.class));
+
+
+       // startActivity(new Intent(SplashScreen.this, RegistrationFormActivity.class));
     }
     public void onStopService(View v) {
         startActivity(new Intent(SplashScreen.this, LoginActivity.class));
