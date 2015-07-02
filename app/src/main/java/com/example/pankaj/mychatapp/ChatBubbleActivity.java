@@ -124,6 +124,7 @@ public class ChatBubbleActivity extends ActionBarActivity implements ActionMode.
                 Intent intent = new Intent();
                 intent.setType(ApplicationConstants.IMAGE_TYPE);
                 intent.setAction(Intent.ACTION_GET_CONTENT);
+                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
                 startActivityForResult(Intent.createChooser(intent,
                         getString(R.string.select_picture)), ApplicationConstants.SELECT_MULTIPLE_PICTURE);
             }
