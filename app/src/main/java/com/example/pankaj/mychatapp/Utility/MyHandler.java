@@ -47,7 +47,7 @@ public class MyHandler extends NotificationsHandler {
                 protected Object doInBackground(Object... params) {
                     int responseCode=0;
                     while (responseCode!=200) {
-                        AppResultModel resultModel = APIHandler.getData(mainActivity.BACKEND_ENDPOINT + "/api/Notifications/GetPendingMsg?userID=" + mainActivity.thisUser.UserID);
+                        AppResultModel resultModel = APIHandler.getData(ApplicationConstants.ServerAddress + "/api/Notifications/GetPendingMsg?userID=" + mainActivity.thisUser.UserID);
                         if (resultModel.ResultCode == HttpURLConnection.HTTP_OK) {
                             try {
                                 responseCode=resultModel.ResultCode;

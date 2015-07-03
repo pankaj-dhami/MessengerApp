@@ -14,6 +14,7 @@ public  class MsgModel implements Serializable
     public byte[] AttachmentData ;
     public String TextMessage ;
     public ArrayList<String> Pic64Data;
+    public boolean IsAttchment;;
 
 }
 

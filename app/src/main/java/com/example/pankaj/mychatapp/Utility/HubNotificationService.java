@@ -57,7 +57,6 @@ public class HubNotificationService extends Service {
     private final String HubName = "messengerapihub";
     private final String HubListenConnectionString = "Endpoint=sb://messengerapihub-ns.servicebus.windows.net/;SharedAccessKeyName=DefaultListenSharedAccessSignature;SharedAccessKey=VcUULvdA/EK3KWO7K1IAySQYWJt96zfKc2H+BcLMotI=";
     private RegisterClient registerClient;
-    public static final String BACKEND_ENDPOINT = "http://messengerapi.azurewebsites.net";
     public static UserModel thisUser;
     public static HubNotificationService thisServiceContext;
     public static ChatMsgModel chatMsgModel;
@@ -82,7 +81,7 @@ public class HubNotificationService extends Service {
         gcm = GoogleCloudMessaging.getInstance(HubNotificationService.this);
         //  hub = new NotificationHub(HubName, HubListenConnectionString, MyService.this);
         //registerWithNotificationHubs();
-        registerClient = new RegisterClient(this, BACKEND_ENDPOINT);
+        registerClient = new RegisterClient(this, ApplicationConstants.ServerAddress);
         registerWithNotificationHubs();
     }
 
@@ -117,7 +116,7 @@ public class HubNotificationService extends Service {
             protected Object doInBackground(Object... params) {
                 try {
 
-                    String uri = BACKEND_ENDPOINT + "/api/notifications";
+                    String uri = ApplicationConstants.ServerAddress + "/api/notifications";
                     uri += "?pns=" + pns;
                     uri += "&to_tag=" + userTag;
                     uri += "&userName=" + ApplicationConstants.thisUser.MobileNo;
@@ -375,6 +374,7 @@ public class HubNotificationService extends Service {
             thread.start();
         }
         else{
+            msgModel.IsAttchment=true;
             Thread thread = new Thread(new SendImageMessageThread(msgModel, chatMsgModel));
             thread.start();
         }
@@ -526,7 +526,7 @@ public class HubNotificationService extends Service {
                     int n = 0;
                     int resultCode = 0;
                     while (n < 3) {
-                        AppResultModel response = APIHandler.createHttpPost
+                        AppResultModel response = APIHandler.createAttachmentHttpPost
                                 (ApplicationConstants.ServerAddress + "/api/Notifications/SendMessage",
                                         query, ApplicationConstants.contentTypeJson, 20000);
                         resultCode = response.ResultCode;
