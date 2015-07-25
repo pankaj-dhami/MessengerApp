@@ -168,7 +168,10 @@ public class MyService extends Service {
 
         proxy.invoke("sendMessage", ApplicationConstants.thisUser, msgModel);
     }
+    public static void sendVoice(byte[] buffer) {
 
+        proxy.invoke("sendMessage", ApplicationConstants.thisUser, buffer);
+    }
     public void disconnectUser()
     {
         isReallyStop=true;

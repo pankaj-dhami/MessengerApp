@@ -148,7 +148,7 @@ public class SqlLiteDb {
     public ChatMsgModel getChatMsg(long _id) {
         ChatMsgModel userModel = null;
         try {
-            String[] columns = {ROW_ID,"left", "UserID", "Name", "MobileNo", "TextMessage", "PictureUrl", "PicData", "IsMyMsg", "IsSendDelv", "CreatedDate"};
+            String[] columns = {ROW_ID, "left", "UserID", "Name", "MobileNo", "TextMessage", "PictureUrl", "PicData", "IsMyMsg", "IsSendDelv", "CreatedDate"};
             Cursor cr = database.query(DB_TABLE_CHAT_MSG, columns, ROW_ID + " = " + _id, null, null, null, null);
             for (cr.moveToFirst(); !cr.isAfterLast(); cr.moveToNext()) {
                 userModel = new ChatMsgModel();
@@ -176,6 +176,19 @@ public class SqlLiteDb {
             try {
                 ContentValues cv = new ContentValues();
                 cv.put("IsSendDelv", chatMsgModel.IsSendDelv);
+                database.update(DB_TABLE_CHAT_MSG, cv, ROW_ID + " = " + existingChat._id, null);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void updateChatMsgAttachUrl(ChatMsgModel chatMsgModel) {
+        ChatMsgModel existingChat = getChatMsg(chatMsgModel._id);
+        if (existingChat != null) {
+            try {
+                ContentValues cv = new ContentValues();
+                cv.put("PictureUrl", chatMsgModel.PictureUrl);
                 database.update(DB_TABLE_CHAT_MSG, cv, ROW_ID + " = " + existingChat._id, null);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -256,8 +269,8 @@ public class SqlLiteDb {
                 cv.put("Name", userModel.Name);
                 cv.put("MobileNo", userModel.MobileNo);
                 cv.put("MyStatus", userModel.MyStatus);
-               // cv.put("PictureUrl", "");
-               // cv.put("PicData", userModel.PicData);
+                // cv.put("PictureUrl", "");
+                // cv.put("PicData", userModel.PicData);
                 database.update(DB_TABLE_FRIENDS, cv, "UserID = " + userModel.UserID, null);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -349,7 +362,7 @@ public class SqlLiteDb {
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             db.execSQL("DROP TABLE " + DB_TABLE_USER);
             db.execSQL("DROP TABLE " + DB_TABLE_FRIENDS);
-             db.execSQL("DROP TABLE " + DB_TABLE_CHAT_MSG );
+            db.execSQL("DROP TABLE " + DB_TABLE_CHAT_MSG);
             onCreate(db);
         }
 

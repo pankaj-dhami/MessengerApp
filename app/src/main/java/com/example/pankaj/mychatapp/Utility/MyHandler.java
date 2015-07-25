@@ -56,6 +56,7 @@ public class MyHandler extends NotificationsHandler {
                                 JSONArray arr = new JSONArray(resultModel.RawResponse);
                                 for (int i = 0; i < arr.length(); i++) {
                                     JSONObject obj = arr.getJSONObject(i);
+                                    String remoteAttachmentUrl= obj.getString("AttachmentUrl");
                                     String msg= obj.getString("TextMessage");
                                     JSONObject fromUser=obj.getJSONObject("UserModel");
                                     UserModel user =new UserModel();
@@ -69,6 +70,7 @@ public class MyHandler extends NotificationsHandler {
                                     ChatMsgModel chatMsgModel=new ChatMsgModel(true,0, user.UserID, user.Name, user.MobileNo
                                             , msgModel.TextMessage, msgModel.AttachmentUrl, msgModel.AttachmentData
                                             , AppEnum.SEND_BY_OTHER  , AppEnum.RECEIVED);
+                                    chatMsgModel.remoteUrl=remoteAttachmentUrl;
                                     chatMsgModel._id= entity.createChatMsgEntry(chatMsgModel);
                                     chatMsgModel.CreatedDate = Common.getDateTime();
                                    mainActivity.publishMessageResults(chatMsgModel,AppEnum.MsgReceivedNotify,true);

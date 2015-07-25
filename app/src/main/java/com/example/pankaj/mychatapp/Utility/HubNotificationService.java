@@ -4,10 +4,13 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Base64;
@@ -38,10 +41,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -54,8 +62,8 @@ public class HubNotificationService extends Service {
     private String SENDER_ID = "863748063039";
     private GoogleCloudMessaging gcm;
     private NotificationHub hub;
-    private final String HubName = "messengerapihub";
-    private final String HubListenConnectionString = "Endpoint=sb://messengerapihub-ns.servicebus.windows.net/;SharedAccessKeyName=DefaultListenSharedAccessSignature;SharedAccessKey=VcUULvdA/EK3KWO7K1IAySQYWJt96zfKc2H+BcLMotI=";
+    private final String HubName = "messengerhub";
+    private final String HubListenConnectionString = "Endpoint=sb://messengerhub-ns.servicebus.windows.net/;SharedAccessKeyName=DefaultFullSharedAccessSignature;SharedAccessKey=ubfkQbBJFyOVBQuBkM/WAlzogcC6bSKLJhsk6snpDW8==";
     private RegisterClient registerClient;
     public static UserModel thisUser;
     public static HubNotificationService thisServiceContext;
@@ -169,6 +177,9 @@ public class HubNotificationService extends Service {
     }
 
     public void publishMessageResults(ChatMsgModel msgModel, String code, boolean doCreateNotification) {
+        if (msgModel != null && msgModel.remoteUrl != null && msgModel.remoteUrl != "") {
+            doDownloadAttachment(msgModel);
+        }
         if (ChatBubbleActivity_active) {
             Intent intent = new Intent("com.example.pankaj.mychatapp");
             intent.putExtra("code", code);
@@ -372,9 +383,8 @@ public class HubNotificationService extends Service {
         if (TextUtils.isEmpty(chatMsgModel.PictureUrl)) {
             Thread thread = new Thread(new SendMessageThread(msgModel, chatMsgModel));
             thread.start();
-        }
-        else{
-            msgModel.IsAttchment=true;
+        } else {
+            msgModel.IsAttchment = true;
             Thread thread = new Thread(new SendImageMessageThread(msgModel, chatMsgModel));
             thread.start();
         }
@@ -425,6 +435,91 @@ public class HubNotificationService extends Service {
         dx.start();
 
     }
+
+    protected void doDownloadAttachment(final ChatMsgModel chatMsgModel) {
+
+        Thread dx = new Thread() {
+
+            public void run() {
+
+                String file = chatMsgModel.remoteUrl.substring(chatMsgModel.remoteUrl.lastIndexOf('/') + 1);
+                // File directory;
+                try {
+                    //  if (Environment.getExternalStorageState() == null) {
+                    //create new file directory object
+                    //  directory = new File(Environment.getDataDirectory()
+                    //         + "/messenger/");
+
+                    // if no directory exists, create new directory
+
+
+                    //   File mypath = new File(directory, file);
+                    //  String localFilePath=mypath.getAbsolutePath();
+
+                    URL url = new URL(chatMsgModel.remoteUrl);
+                    URLConnection connection = url.openConnection();
+                    connection.connect();
+                    // this will be useful so that you can show a typical 0-100% progress bar
+                    int fileLength = connection.getContentLength();
+
+                    // download the file
+                    InputStream input = new BufferedInputStream(url.openStream());
+
+                    ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+                    int nRead;
+                    byte[] data = new byte[16384];
+
+                    while ((nRead = input.read(data, 0, data.length)) != -1) {
+                        buffer.write(data, 0, nRead);
+                    }
+
+                    buffer.flush();
+                  //  Bitmap bitmapImage = BitmapFactory.decodeByteArray(buffer.toByteArray(), 0, buffer.toByteArray().length);
+                   // ContextWrapper cw = new ContextWrapper(getApplicationContext());
+                    // path to /data/data/yourapp/app_data/imageDir
+                   // File directory = cw.getDir("messenger", Context.MODE_PRIVATE);
+                   // if (!directory.exists()) {
+                    //    directory.mkdir();
+                   // }
+                    // Create imageDir
+                    File dir = new File(Environment.getExternalStorageDirectory(), "IM_Images");
+                    if (!dir.exists()) {
+                        dir.mkdir();
+                    }
+                    File downloads=  Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                    File mypath = new File(dir, file);
+
+                    FileOutputStream fos = null;
+                    try {
+
+                        fos = new FileOutputStream(mypath);
+                        fos.write(buffer.toByteArray());
+                        fos.close();
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    String localFilePath= mypath.getAbsolutePath();
+
+                    SqlLiteDb entity = new SqlLiteDb(thisServiceContext);
+                    entity.open();
+                    chatMsgModel.PictureUrl = "file://" + localFilePath;
+                    chatMsgModel.remoteUrl = "";
+                    entity.updateChatMsgAttachUrl(chatMsgModel);
+                    entity.close();
+                    HubNotificationService.thisServiceContext.publishMessageResults(chatMsgModel, AppEnum.MsgReceivedAttachment, false);
+                    //  }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    // Log.i("ERROR ON DOWNLOADING FILES", "ERROR IS" +e);
+                }
+
+            }
+        };
+        dx.start();
+
+    }
+
 
     class SendMessageThread implements Runnable {
         SendMsgModel msg = new SendMsgModel();
@@ -486,13 +581,13 @@ public class HubNotificationService extends Service {
         public SendImageMessageThread(MsgModel msgModel, ChatMsgModel chatMsgModel) {
 
             try {
-                Uri selectedImageUri = Uri.parse( msgModel.AttachmentUrl);
-                Bitmap bmp = new UserPicture(selectedImageUri,thisServiceContext.getContentResolver()).getBitmap();
+                Uri selectedImageUri = Uri.parse(msgModel.AttachmentUrl);
+                Bitmap bmp = new UserPicture(selectedImageUri, thisServiceContext.getContentResolver()).getBitmap();
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 bmp.compress(Bitmap.CompressFormat.JPEG, 20, stream);
-                byte[]  imageByteArray = stream.toByteArray();
+                byte[] imageByteArray = stream.toByteArray();
                 msgModel.Pic64Data = new ArrayList<String>();
-                if (imageByteArray!=null && imageByteArray.length>0) {
+                if (imageByteArray != null && imageByteArray.length > 0) {
                     String sb = Base64.encodeToString(imageByteArray, Base64.DEFAULT);
                     int n = 0;
                     for (String str : sb.split("/")) {

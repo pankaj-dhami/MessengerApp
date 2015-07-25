@@ -33,10 +33,9 @@ import java.util.List;
 
 public class ChatArrayAdapter extends ArrayAdapter {
 
-    private TextView chatText;
-    private TextView infoText;
+
     private List<ChatMsgModel> chatMessageList = new ArrayList<ChatMsgModel>();
-    private LinearLayout singleMessageContainer;
+
 
     @Override
     public void clear() {
@@ -79,15 +78,21 @@ public class ChatArrayAdapter extends ArrayAdapter {
 
     public View getView(int position, View convertView, ViewGroup parent) {
         View row = convertView;
+        TextView infoText;
+        TextView chatText;
+        ImageView singleImageMsg;
+        LinearLayout singleMessageContainer,singleMessageWithText;
         if (row == null) {
             LayoutInflater inflater = (LayoutInflater) this.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             row = inflater.inflate(R.layout.chat_single_msg, parent, false);
         }
         singleMessageContainer = (LinearLayout) row.findViewById(R.id.singleMessageContainer);
+        singleMessageWithText = (LinearLayout) row.findViewById(R.id.singleMessageWithText);
         ChatMsgModel chatMessageObj = getItem(position);
         chatText = (TextView) row.findViewById(R.id.singleMessage);
         infoText = (TextView) row.findViewById(R.id.txtInfo);
-        ImageView singleImageMsg =(ImageView) row.findViewById(R.id.singleImageMsg);
+        singleImageMsg = (ImageView) row.findViewById(R.id.singleImageMsg);
+
         String textMessage = chatMessageObj.TextMessage;
         String infoTextStr = " " + Common.getTime(chatMessageObj.CreatedDate);
         if (chatMessageObj.IsMyMsg == AppEnum.SEND_BY_ME) {
@@ -113,11 +118,10 @@ public class ChatArrayAdapter extends ArrayAdapter {
         } else {
             singleMessageContainer.setBackgroundColor(Color.parseColor("#00000000"));
         }
-        if (!TextUtils.isEmpty(chatMessageObj.PictureUrl))
-        {
+        if (!TextUtils.isEmpty(chatMessageObj.PictureUrl)) {
             try {
                 Uri selectedImageUri = Uri.parse(chatMessageObj.PictureUrl);
-                Bitmap bmp = new UserPicture(selectedImageUri,HubNotificationService.thisServiceContext.getContentResolver()).getBitmap();
+                Bitmap bmp = new UserPicture(selectedImageUri, HubNotificationService.thisServiceContext.getContentResolver()).getBitmap();
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 bmp.compress(Bitmap.CompressFormat.JPEG, 20, stream);
                 singleImageMsg.setImageBitmap(bmp);
@@ -125,9 +129,12 @@ public class ChatArrayAdapter extends ArrayAdapter {
                 e.printStackTrace();
             }
         }
+        else {
+            singleImageMsg.setImageDrawable(null);
+        }
         chatText.setText(textMessage);
         infoText.setText(infoTextStr);
-        chatText.setBackgroundResource(chatMessageObj.left ? R.drawable.out_message_bg : R.drawable.in_message_bg);
+        singleMessageWithText.setBackgroundResource(chatMessageObj.left ? R.drawable.out_message_bg : R.drawable.in_message_bg);
         singleMessageContainer.setGravity(chatMessageObj.left ? Gravity.LEFT : Gravity.RIGHT);
         return row;
     }

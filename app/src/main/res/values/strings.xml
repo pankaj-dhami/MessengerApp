@@ -253,4 +253,5 @@
         <item>260,ZM</item>
         <item>263,ZW</item>
     </string-array>
+    <string name="title_activity_voice">VoiceActivity</string>
 </resources>

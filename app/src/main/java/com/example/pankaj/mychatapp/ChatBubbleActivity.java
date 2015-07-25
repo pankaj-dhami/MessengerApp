@@ -107,18 +107,18 @@ public class ChatBubbleActivity extends ActionBarActivity implements ActionMode.
         thisChatUser = HubNotificationService.chatUser;
         //setTitle(thisChatUser.Name);
         ActionBar actionBar = getSupportActionBar();
-       // ActionBar mActionBar = getActionBar();
-       // actionBar.setDisplayShowHomeEnabled(false);
+        // ActionBar mActionBar = getActionBar();
+        // actionBar.setDisplayShowHomeEnabled(false);
         actionBar.setDisplayShowTitleEnabled(false);
         View row = null;
         if (row == null) {
             LayoutInflater inflater = LayoutInflater.from(this);
-            row = inflater.inflate(R.layout.chat_actionbar_customview,null, false);
+            row = inflater.inflate(R.layout.chat_actionbar_customview, null, false);
         }
         RoundedImageView chatUserImage = (RoundedImageView) row.findViewById(R.id.chatUserImage);
-        TextView  txtUserName = (TextView) row.findViewById(R.id.txtUserName);
+        TextView txtUserName = (TextView) row.findViewById(R.id.txtUserName);
         TextView txtOnlineStatus = (TextView) row.findViewById(R.id.txtOnlineStatus);
-        if (thisChatUser.PicData!=null && thisChatUser.PicData.length >3) {
+        if (thisChatUser.PicData != null && thisChatUser.PicData.length > 3) {
             try {
                 chatUserImage.setImageBitmap(BitmapFactory.decodeByteArray(thisChatUser.PicData, 0, thisChatUser.PicData.length));
             } catch (Exception e) {
@@ -163,7 +163,7 @@ public class ChatBubbleActivity extends ActionBarActivity implements ActionMode.
         chatText.setOnKeyListener(new OnKeyListener() {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    return    sendChatMessage(chatText.getText().toString(), "");
+                    return sendChatMessage(chatText.getText().toString(), "");
                 }
                 return false;
             }
@@ -198,14 +198,14 @@ public class ChatBubbleActivity extends ActionBarActivity implements ActionMode.
                 } else {
                     chatArrayAdapter.getItem(position).isChecked = true;
                     selectedItems.add(chatArrayAdapter.getItem(position));
-                    if (mActionMode==null) {
+                    if (mActionMode == null) {
                         mActionMode = ChatBubbleActivity.this.startActionMode(ChatBubbleActivity.this);
                         getSupportActionBar().hide();
                     }
 
                 }
                 if (selectedItems.isEmpty()) {
-                    if(mActionMode!=null) {
+                    if (mActionMode != null) {
                         mActionMode.finish();
                         mActionMode = null;
                     }
@@ -227,7 +227,7 @@ public class ChatBubbleActivity extends ActionBarActivity implements ActionMode.
                     } else {
                         chatArrayAdapter.getItem(position).isChecked = true;
                         selectedItems.add(chatArrayAdapter.getItem(position));
-                        if (mActionMode==null) {
+                        if (mActionMode == null) {
                             mActionMode = ChatBubbleActivity.this.startActionMode(ChatBubbleActivity.this);
                             getSupportActionBar().hide();
                         }
@@ -235,7 +235,7 @@ public class ChatBubbleActivity extends ActionBarActivity implements ActionMode.
 
                 }
                 if (selectedItems.isEmpty()) {
-                    if(mActionMode!=null) {
+                    if (mActionMode != null) {
                         mActionMode.finish();
                         mActionMode = null;
                     }
@@ -304,51 +304,14 @@ public class ChatBubbleActivity extends ActionBarActivity implements ActionMode.
     }
 
 
-    private void sendAttachmentMessage( ArrayList<Parcelable> list) {
+    private void sendAttachmentMessage(ArrayList<CustomGallery> list) {
 
         if (list != null) {
-            for (Parcelable parcel : list) {
-                Uri uri = (Uri) parcel;
-                sendChatMessage(chatText.getText().toString(),uri.toString());
+            for (CustomGallery parcel : list) {
+                Uri uri = Uri.parse(parcel.sdcardPath);
+                sendChatMessage(chatText.getText().toString(), uri.toString());
                 // handle the images one by one here
             }
-        }
-    }
-
-    public void onActivityResult1(int requestCode, int resultCode, Intent data) {
-        if (resultCode == RESULT_OK) {
-            if (requestCode == ApplicationConstants.SELECT_SINGLE_PICTURE) {
-
-                Uri selectedImageUri = data.getData();
-                try {
-                    Bitmap bmp = new UserPicture(selectedImageUri, getContentResolver()).getBitmap();
-                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                    bmp.compress(Bitmap.CompressFormat.JPEG, 5, stream);
-                    // bmp=Bitmap.createScaledBitmap(bmp,50,50,false);
-                    //  imageByteArray = stream.toByteArray();
-                    //  selectedImagePreview.setImageBitmap(bmp);
-                } catch (IOException e) {
-                    Log.e(RegisterActivity.class.getSimpleName(), "Failed to load image", e);
-                }
-                // original code
-//                String selectedImagePath = getPath(selectedImageUri);
-//                selectedImagePreview.setImageURI(selectedImageUri);
-            } else if (requestCode == ApplicationConstants.SELECT_MULTIPLE_PICTURE) {
-                //And in the Result handling check for that parameter:
-              //  if (Intent.ACTION_SEND_MULTIPLE.equals(data.getAction())
-              //          && data.hasExtra(Intent.EXTRA_STREAM)) {
-                    // retrieve a collection of selected images
-                ArrayList<String> paths = data.getStringArrayListExtra
-                        (Intent.EXTRA_STREAM);
-                    ArrayList<Parcelable> list = data.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
-                    // iterate over these images
-                    sendAttachmentMessage(list);
-               // }
-            }
-        } else {
-            // report failure
-            Toast.makeText(getApplicationContext(), "No image selected", Toast.LENGTH_LONG).show();
-            Log.d(RegistrationFormActivity.class.getSimpleName(), "Failed to get intent data, result code is " + resultCode);
         }
     }
 
@@ -356,11 +319,11 @@ public class ChatBubbleActivity extends ActionBarActivity implements ActionMode.
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == 100 && resultCode == Activity.RESULT_OK) {
-           // adapter.clear();
+            // adapter.clear();
 
-          //  viewSwitcher.setDisplayedChild(1);
+            //  viewSwitcher.setDisplayedChild(1);
             String single_path = data.getStringExtra("single_path");
-          //  imageLoader.displayImage("file://" + single_path, imgSinglePick);
+            //  imageLoader.displayImage("file://" + single_path, imgSinglePick);
 
         } else if (requestCode == 200 && resultCode == Activity.RESULT_OK) {
             String[] all_path = data.getStringArrayExtra("all_path");
@@ -369,13 +332,12 @@ public class ChatBubbleActivity extends ActionBarActivity implements ActionMode.
 
             for (String string : all_path) {
                 CustomGallery item = new CustomGallery();
-                item.sdcardPath = string;
+                item.sdcardPath = "file://" + string;
 
                 dataT.add(item);
             }
 
-           // viewSwitcher.setDisplayedChild(0);
-          //  adapter.addAll(dataT);
+            sendAttachmentMessage(dataT);
         }
     }
     //endregion
@@ -390,12 +352,12 @@ public class ChatBubbleActivity extends ActionBarActivity implements ActionMode.
     }
 
     //region send receive methods
-    private boolean sendChatMessage(String msgText,String attachmentUri) {
+    private boolean sendChatMessage(String msgText, String attachmentUri) {
 
         MsgModel msgModel = new MsgModel();
         msgModel.UserModel = thisChatUser;
         msgModel.TextMessage = msgText;
-        msgModel.AttachmentUrl=attachmentUri;
+        msgModel.AttachmentUrl = attachmentUri;
         ChatMsgModel chatMsgModel = new ChatMsgModel(false, 0, thisChatUser.UserID, thisChatUser.Name, thisChatUser.MobileNo
                 , msgModel.TextMessage, msgModel.AttachmentUrl, msgModel.AttachmentData
                 , AppEnum.SEND_BY_ME, AppEnum.Trying_SEND);
@@ -442,6 +404,20 @@ public class ChatBubbleActivity extends ActionBarActivity implements ActionMode.
                         e.printStackTrace();
                     }
                 }
+                if (TextUtils.equals(code, AppEnum.MsgReceivedAttachment)) {
+                    try {
+                        String query = bundle.getString("message");
+                        ChatMsgModel chatMsgModel = HubNotificationService.getChatModel(new JSONObject(query));
+                        if (chatMsgModel.UserID == thisChatUser.UserID) {
+                            ChatMsgModel existingItem = chatArrayAdapter.getItemFromID(chatMsgModel._id);
+                            existingItem.PictureUrl = chatMsgModel.PictureUrl;
+                            chatArrayAdapter.notifyDataSetChanged();
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+
             }
         }
     };
@@ -532,9 +508,8 @@ public class ChatBubbleActivity extends ActionBarActivity implements ActionMode.
     @Override
     public void onDestroyActionMode(ActionMode mode) {
         getSupportActionBar().show();
-        for (ChatMsgModel item:selectedItems)
-        {
-            item.isChecked=false;
+        for (ChatMsgModel item : selectedItems) {
+            item.isChecked = false;
         }
         selectedItems.clear();
         chatArrayAdapter.notifyDataSetChanged();

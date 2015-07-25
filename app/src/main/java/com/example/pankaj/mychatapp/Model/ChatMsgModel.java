@@ -23,6 +23,7 @@ public class ChatMsgModel implements Parcelable {
     public boolean left;
     public boolean isChecked;
     public ArrayList<String> Pic64Data;
+    public String remoteUrl;
 
     public ChatMsgModel(boolean left,long _id, int userID, String name, String mobileNo, String textMessage, String pictureUrl, byte[] picData, int isMyMsg, int isSendDelv) {
         this. _id=_id;

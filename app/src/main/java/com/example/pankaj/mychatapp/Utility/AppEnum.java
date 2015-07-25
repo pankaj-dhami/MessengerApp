@@ -16,5 +16,6 @@ public class AppEnum {
     public final static int UNDELIVERED = 4;
 
     public static final String MsgReceivedNotify="msgReceivedNotify";
+    public static final String MsgReceivedAttachment="msgReceivedAttachment";
     public static final String MsgSendNotify="msgSendNotify";
 }

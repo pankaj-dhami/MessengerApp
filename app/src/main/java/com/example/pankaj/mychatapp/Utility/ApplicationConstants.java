@@ -8,8 +8,8 @@ import com.example.pankaj.mychatapp.Model.UserModel;
  */
 public class ApplicationConstants  {
 
-    public final static String ServerAddress="http://webapitoken.azurewebsites.net";
-    public final static String host="http://msgapi.azurewebsites.net";
+    public final static String ServerAddress="http://messengerapi.azurewebsites.net";
+    public final static String host="http://messengerapi.azurewebsites.net";
     public final static String TokenAddress=ServerAddress+"/token";
     public final static String RegisterAddress=ServerAddress+"/api/account/register";
     public final static String UpdateUser=ServerAddress+"/api/account/UpdateUser";

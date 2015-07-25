@@ -18,12 +18,13 @@
     <permission
         android:name="com.example.pankaj.mychatapp.permission.C2D_MESSAGE"
         android:protectionLevel="signature" />
+
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="com.example.pankaj.mychatapp.permission.C2D_MESSAGE" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -60,8 +61,7 @@
         <activity
             android:name=".HomeDash"
             android:label="ChatteR.."
-            android:theme="@style/Theme.NoActionBar"
-            >
+            android:theme="@style/Theme.NoActionBar" >
         </activity>
         <activity
             android:name=".ChatBubbleActivity"
@@ -104,6 +104,10 @@
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".VoiceActivity"
+            android:label="@string/title_activity_voice" >
         </activity>
     </application>
 
